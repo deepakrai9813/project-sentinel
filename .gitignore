@@ -1,0 +1,27 @@
+# Binaries & OS files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+.DS_Store
+Thumbs.db
+
+# Go
+backend/sentinel
+backend/primary-mock
+backend/secondary-mock
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
