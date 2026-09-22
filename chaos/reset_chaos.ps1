@@ -3,10 +3,11 @@ Write-Host "  Project Sentinel - Healing Primary API                 " -Foregrou
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 $baseUrl = "http://localhost:8474/proxies/primary_api/toxics"
+$ua = "sentinel-chaos"
 
 Write-Host "`n[+] Removing latency toxic..." -ForegroundColor Yellow
 try {
-    Invoke-RestMethod -Uri "$baseUrl/latency_chaos" -Method Delete
+    Invoke-RestMethod -Uri "$baseUrl/latency_chaos" -Method Delete -UserAgent $ua
     Write-Host "    -> Latency removed!" -ForegroundColor Green
 } catch {
     Write-Host "    -> No active latency toxic found." -ForegroundColor DarkGray
@@ -14,7 +15,7 @@ try {
 
 Write-Host "`n[+] Removing packet loss toxic..." -ForegroundColor Yellow
 try {
-    Invoke-RestMethod -Uri "$baseUrl/loss_chaos" -Method Delete
+    Invoke-RestMethod -Uri "$baseUrl/loss_chaos" -Method Delete -UserAgent $ua
     Write-Host "    -> Packet loss removed!" -ForegroundColor Green
 } catch {
     Write-Host "    -> No active loss toxic found." -ForegroundColor DarkGray

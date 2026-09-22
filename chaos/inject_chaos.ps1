@@ -3,6 +3,7 @@ Write-Host "  Project Sentinel - Injecting Toxiproxy Chaos           " -Foregrou
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 $baseUrl = "http://localhost:8474/proxies/primary_api/toxics"
+$ua = "sentinel-chaos"
 
 # 1. Inject 500ms Latency
 $latencyPayload = @{
@@ -18,27 +19,29 @@ $latencyPayload = @{
 
 Write-Host "`n[+] Injecting 500ms latency into Primary API..." -ForegroundColor DarkYellow
 try {
-    $res1 = Invoke-RestMethod -Uri $baseUrl -Method Post -Body $latencyPayload -ContentType "application/json"
+    $res1 = Invoke-RestMethod -Uri $baseUrl -Method Post -Body $latencyPayload -ContentType "application/json" -UserAgent $ua
     Write-Host "    -> 500ms latency active! (Exceeds 200ms context timeout)" -ForegroundColor Green
 } catch {
-    Write-Host "    -> Latency toxic might already exist: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "    -> Latency toxic: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 
-# 2. Inject 20% Packet Loss
+# 2. Inject 20% Packet Drop Rate (Timeout toxic on 20% of requests)
 $lossPayload = @{
     name = "loss_chaos"
-    type = "loss"
+    type = "timeout"
     stream = "downstream"
     toxicity = 0.2
-    attributes = @{}
+    attributes = @{
+        timeout = 1000
+    }
 } | ConvertTo-Json
 
 Write-Host "`n[+] Injecting 20% packet drop rate into Primary API..." -ForegroundColor DarkYellow
 try {
-    $res2 = Invoke-RestMethod -Uri $baseUrl -Method Post -Body $lossPayload -ContentType "application/json"
-    Write-Host "    -> 20% packet loss active!" -ForegroundColor Green
+    $res2 = Invoke-RestMethod -Uri $baseUrl -Method Post -Body $lossPayload -ContentType "application/json" -UserAgent $ua
+    Write-Host "    -> 20% packet drop active!" -ForegroundColor Green
 } catch {
-    Write-Host "    -> Loss toxic might already exist: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "    -> Packet loss toxic: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 
 Write-Host "`n==========================================================" -ForegroundColor Cyan

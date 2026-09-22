@@ -26,10 +26,12 @@ curl -s -X POST "$BASE_URL" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "loss_chaos",
-    "type": "loss",
+    "type": "timeout",
     "stream": "downstream",
     "toxicity": 0.2,
-    "attributes": {}
+    "attributes": {
+      "timeout": 1000
+    }
   }' || true
 
 echo "\n=========================================================="

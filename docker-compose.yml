@@ -79,6 +79,7 @@ services:
       - PORT=8080
       - PRIMARY_URL=http://toxiproxy:8475
       - SECONDARY_URL=http://secondary-api:8082
+      - TOXIPROXY_URL=http://toxiproxy:8474
     ports:
       - "8080:8080"
     depends_on:

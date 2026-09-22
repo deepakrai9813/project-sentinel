@@ -159,52 +159,30 @@ export default function App() {
   // Controls: Inject Toxiproxy chaos (500ms latency + 20% loss)
   const injectChaos = async () => {
     try {
-      // Connect to Toxiproxy management API via port 8474
-      // Add latency toxic
-      await fetch('http://localhost:8474/proxies/primary_api/toxics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'latency_chaos',
-          type: 'latency',
-          stream: 'downstream',
-          toxicity: 1.0,
-          attributes: { latency: 500, jitter: 0 },
-        }),
-      });
-
-      // Add loss toxic
-      await fetch('http://localhost:8474/proxies/primary_api/toxics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'packet_loss_chaos',
-          type: 'loss',
-          stream: 'downstream',
-          toxicity: 0.2, // 20% packet drop
-          attributes: {},
-        }),
-      });
-
-      setChaosActive(true);
-      showToast('⚠️ Chaos Injected: 500ms latency + 20% loss on Primary API!');
+      const res = await fetch('/api/chaos/inject', { method: 'POST' });
+      if (res.ok) {
+        setChaosActive(true);
+        showToast('⚠️ Chaos Injected: 500ms latency + 20% packet drop on Primary API!');
+      } else {
+        throw new Error('API returned ' + res.status);
+      }
     } catch (err) {
-      // Fallback message if running outside docker
-      showToast('Simulating chaos (Primary API latency injected)');
-      setChaosActive(true);
+      showToast('⚠️ Failed to inject chaos: ' + err.message);
     }
   };
 
   // Controls: Heal Toxiproxy chaos
   const healChaos = async () => {
     try {
-      await fetch('http://localhost:8474/proxies/primary_api/toxics/latency_chaos', { method: 'DELETE' });
-      await fetch('http://localhost:8474/proxies/primary_api/toxics/packet_loss_chaos', { method: 'DELETE' });
-      setChaosActive(false);
-      showToast('✅ Chaos Removed: Primary API restored to healthy 20ms latency');
+      const res = await fetch('/api/chaos/reset', { method: 'POST' });
+      if (res.ok) {
+        setChaosActive(false);
+        showToast('✅ Chaos Removed: Primary API restored to healthy 20ms latency');
+      } else {
+        throw new Error('API returned ' + res.status);
+      }
     } catch (err) {
-      setChaosActive(false);
-      showToast('Chaos reset');
+      showToast('⚠️ Failed to heal chaos: ' + err.message);
     }
   };
 

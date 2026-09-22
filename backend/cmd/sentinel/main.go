@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"log"
@@ -69,6 +70,46 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		json.NewEncoder(w).Encode(metricsCollector.GetSnapshot())
+	})
+
+	// Chaos Engineering Controls (bridges frontend to Toxiproxy securely)
+	toxiURL := getEnv("TOXIPROXY_URL", "http://localhost:8474")
+	mux.HandleFunc("/api/chaos/inject", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		client := &http.Client{Timeout: 3 * time.Second}
+
+		// 1. Latency toxic (500ms)
+		lBody := bytes.NewBufferString(`{"name":"latency_chaos","type":"latency","stream":"downstream","toxicity":1.0,"attributes":{"latency":500,"jitter":0}}`)
+		req1, _ := http.NewRequest("POST", toxiURL+"/proxies/primary_api/toxics", lBody)
+		req1.Header.Set("Content-Type", "application/json")
+		req1.Header.Set("User-Agent", "sentinel-chaos")
+		client.Do(req1)
+
+		// 2. Timeout toxic (20% packet drop)
+		pBody := bytes.NewBufferString(`{"name":"loss_chaos","type":"timeout","stream":"downstream","toxicity":0.2,"attributes":{"timeout":1000}}`)
+		req2, _ := http.NewRequest("POST", toxiURL+"/proxies/primary_api/toxics", pBody)
+		req2.Header.Set("Content-Type", "application/json")
+		req2.Header.Set("User-Agent", "sentinel-chaos")
+		client.Do(req2)
+
+		w.Write([]byte(`{"status":"chaos_injected","latency_ms":500,"loss_percent":20}`))
+	})
+
+	mux.HandleFunc("/api/chaos/reset", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		client := &http.Client{Timeout: 3 * time.Second}
+
+		req1, _ := http.NewRequest("DELETE", toxiURL+"/proxies/primary_api/toxics/latency_chaos", nil)
+		req1.Header.Set("User-Agent", "sentinel-chaos")
+		client.Do(req1)
+
+		req2, _ := http.NewRequest("DELETE", toxiURL+"/proxies/primary_api/toxics/loss_chaos", nil)
+		req2.Header.Set("User-Agent", "sentinel-chaos")
+		client.Do(req2)
+
+		w.Write([]byte(`{"status":"chaos_healed"}`))
 	})
 
 	// Built-in Load Simulator trigger (great for live recruiter demo)
