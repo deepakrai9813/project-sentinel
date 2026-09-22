@@ -1,8 +1,10 @@
 package proxy
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -101,5 +103,57 @@ func TestRouter_ContextTimeoutFallsBackToSecondary(t *testing.T) {
 	}
 	if body := w.Body.String(); body != "from fallback" {
 		t.Fatalf("expected body 'from fallback', got '%s'", body)
+	}
+}
+
+func TestRouter_POSTBodyRewindOnFallback(t *testing.T) {
+	// Slow Primary server (>200ms)
+	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(300 * time.Millisecond) // Exceeds 200ms timeout
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer primary.Close()
+
+	var receivedFallbackBody string
+	// Secondary server receives the replayed body
+	secondary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "read error", http.StatusInternalServerError)
+			return
+		}
+		receivedFallbackBody = string(b)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("fallback received: " + receivedFallbackBody))
+	}))
+	defer secondary.Close()
+
+	cb := circuitbreaker.New(circuitbreaker.DefaultConfig())
+	metrics := telemetry.NewMetricsCollector(cb)
+
+	router, err := NewRouter(RouterConfig{
+		PrimaryURL:   primary.URL,
+		SecondaryURL: secondary.URL,
+		Timeout:      200 * time.Millisecond,
+	}, cb, metrics)
+	if err != nil {
+		t.Fatalf("failed to create router: %v", err)
+	}
+
+	payload := `{"order_id":"12345","amount":99.50}`
+	req := httptest.NewRequest("POST", "/checkout", strings.NewReader(payload))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK from fallback, got %d", w.Code)
+	}
+	if route := w.Header().Get("X-Sentinel-Route"); route != "SECONDARY_FALLBACK" {
+		t.Fatalf("expected X-Sentinel-Route SECONDARY_FALLBACK, got %s", route)
+	}
+	if receivedFallbackBody != payload {
+		t.Fatalf("expected fallback to receive full body '%s', got '%s'", payload, receivedFallbackBody)
 	}
 }

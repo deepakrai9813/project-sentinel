@@ -53,16 +53,17 @@ services:
       - primary-api
     networks:
       - sentinel-net
-    command: >
-      sh -c "
-        echo 'Waiting for Toxiproxy to become ready...';
-        until curl -s http://toxiproxy:8474/version; do sleep 1; done;
-        echo 'Registering primary_api proxy route in Toxiproxy...';
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo 'Waiting for Toxiproxy to become ready...'
+        until curl -s http://toxiproxy:8474/version; do sleep 1; done
+        echo 'Registering primary_api proxy route in Toxiproxy...'
         curl -s -X POST http://toxiproxy:8474/proxies \
           -H 'Content-Type: application/json' \
-          -d '{\"name\":\"primary_api\",\"listen\":\"0.0.0.0:8475\",\"upstream\":\"primary-api:8081\",\"enabled\":true}';
-        echo 'Toxiproxy initialization complete!';
-      "
+          -d '{"name":"primary_api","listen":"0.0.0.0:8475","upstream":"primary-api:8081","enabled":true}'
+        echo 'Toxiproxy initialization complete!'
     restart: "no"
 
   # ==========================================================

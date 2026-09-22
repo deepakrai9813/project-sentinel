@@ -87,14 +87,20 @@ func (h *Hub) broadcastToAll(message []byte) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
+	var failedClients []*websocket.Conn
+
 	for client := range h.clients {
 		client.SetWriteDeadline(time.Now().Add(200 * time.Millisecond))
 		err := client.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
 			log.Printf("[WebSocket] Client write error (disconnecting): %v", err)
 			client.Close()
-			delete(h.clients, client)
+			failedClients = append(failedClients, client)
 		}
+	}
+
+	for _, client := range failedClients {
+		delete(h.clients, client)
 	}
 }
 

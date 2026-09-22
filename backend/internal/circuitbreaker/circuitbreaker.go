@@ -123,8 +123,10 @@ func (cb *CircuitBreaker) RecordSuccess() {
 
 	switch cb.state {
 	case StateClosed:
-		cb.consecutiveSuccesses++
+		// In CLOSED state, successes reset failure count.
+		// Consecutive successes are strictly tracked during HALF_OPEN to reach successThreshold.
 		cb.consecutiveFailures = 0
+		cb.consecutiveSuccesses = 0
 	case StateHalfOpen:
 		if cb.activeHalfOpenTrials > 0 {
 			cb.activeHalfOpenTrials--
@@ -181,10 +183,15 @@ func (cb *CircuitBreaker) Snapshot() Snapshot {
 		}
 	}
 
+	consecutiveSuccesses := cb.consecutiveSuccesses
+	if cb.state == StateClosed {
+		consecutiveSuccesses = 0
+	}
+
 	return Snapshot{
 		State:                cb.state,
 		ConsecutiveFailures:  cb.consecutiveFailures,
-		ConsecutiveSuccesses: cb.consecutiveSuccesses,
+		ConsecutiveSuccesses: consecutiveSuccesses,
 		LastStateChange:      cb.lastStateChange,
 		TimeoutRemaining:     remaining / time.Millisecond,
 	}
