@@ -8,25 +8,17 @@ import {
   Zap, 
   Flame, 
   RotateCcw, 
-  Wifi, 
   Clock, 
-  ArrowRight, 
   Send, 
   Layers, 
-  Sliders, 
   HelpCircle, 
   X, 
   CheckCircle2, 
-  AlertTriangle,
-  Play,
-  Pause,
-  Filter,
-  ExternalLink,
-  ChevronRight,
-  Database
+  Play, 
+  Pause 
 } from 'lucide-react';
 
-// Design Theme Tokens based on Circuit State (UI UX Pro Max guidelines)
+// Design Theme Tokens based on Circuit State - Warm Carbon / Amber / Emerald / Tangerine (No Blue / Purple)
 const STATE_THEMES = {
   CLOSED: {
     name: 'CLOSED',
@@ -52,10 +44,10 @@ const STATE_THEMES = {
     name: 'OPEN',
     statusText: 'Primary Severed • 100% Fallback',
     description: 'Primary exceeded 200ms threshold. Bypassing upstream; routing 100% to Secondary.',
-    color: '#f43f5e',
-    glow: 'rgba(244, 63, 94, 0.3)',
-    bg: 'rgba(244, 63, 94, 0.08)',
-    border: '#f43f5e',
+    color: '#ef4444',
+    glow: 'rgba(239, 68, 68, 0.3)',
+    bg: 'rgba(239, 68, 68, 0.08)',
+    border: '#ef4444',
     icon: ShieldAlert,
   },
 };
@@ -220,20 +212,20 @@ export default function App() {
           top: '24px',
           right: '24px',
           zIndex: 9999,
-          background: 'rgba(15, 23, 42, 0.95)',
+          background: 'rgba(24, 24, 27, 0.95)',
           backdropFilter: 'blur(12px)',
-          border: '1px solid #38bdf8',
-          color: '#f8fafc',
+          border: '1px solid #f59e0b',
+          color: '#fafafa',
           padding: '14px 22px',
           borderRadius: '12px',
-          boxShadow: '0 20px 40px -15px rgba(0,0,0,0.7)',
+          boxShadow: '0 20px 40px -15px rgba(0,0,0,0.8)',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
           fontSize: '13px',
           fontWeight: 600,
         }}>
-          <Zap size={18} color="#38bdf8" />
+          <Zap size={18} color="#fbbf24" />
           {toastMessage}
         </div>
       )}
@@ -244,7 +236,7 @@ export default function App() {
           position: 'fixed',
           inset: 0,
           zIndex: 10000,
-          background: 'rgba(4, 7, 13, 0.85)',
+          background: 'rgba(9, 9, 11, 0.85)',
           backdropFilter: 'blur(16px)',
           display: 'flex',
           alignItems: 'center',
@@ -256,8 +248,8 @@ export default function App() {
             width: '100%',
             maxHeight: '90vh',
             overflowY: 'auto',
-            background: '#0d1322',
-            border: '1px solid #293854',
+            background: '#121215',
+            border: '1px solid #27272a',
             padding: '32px',
             position: 'relative',
           }}>
@@ -270,7 +262,7 @@ export default function App() {
                 right: '24px',
                 background: 'rgba(255,255,255,0.06)',
                 border: 'none',
-                color: '#94a3b8',
+                color: '#a1a1aa',
                 borderRadius: '8px',
                 padding: '6px',
               }}
@@ -279,52 +271,52 @@ export default function App() {
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <HelpCircle size={24} color="#38bdf8" />
-              <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc' }}>
+              <HelpCircle size={24} color="#fbbf24" />
+              <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fafafa' }}>
                 Recruiter Demo & Technical Defense Guide
               </h2>
             </div>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px' }}>
+            <p style={{ fontSize: '13px', color: '#a1a1aa', marginBottom: '24px' }}>
               Use this script to deliver an unforgettable 3-minute demonstration to your interviewer.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Step 1 */}
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '12px', border: '1px solid #1e293b' }}>
+              <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#10b981', fontSize: '14px' }}>
                   <CheckCircle2 size={18} /> Step 1: Explain The Architecture (60 seconds)
                 </div>
-                <p style={{ fontSize: '13px', color: '#cbd5e1', marginTop: '6px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '13px', color: '#d4d4d8', marginTop: '6px', lineHeight: 1.5 }}>
                   "Project Sentinel sits between clients and microservices. It multiplexes incoming requests with a custom zero-dependency Circuit Breaker in Go. It operates with a strict 200ms context timeout on the Primary API. Under load, it enforces a 128 MB RAM ceiling using pooled streaming buffers and socket reuse."
                 </p>
               </div>
 
               {/* Step 2 */}
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '12px', border: '1px solid #1e293b' }}>
+              <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#f59e0b', fontSize: '14px' }}>
                   <Flame size={18} /> Step 2: Trigger Live Toxiproxy Chaos
                 </div>
-                <p style={{ fontSize: '13px', color: '#cbd5e1', marginTop: '6px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '13px', color: '#d4d4d8', marginTop: '6px', lineHeight: 1.5 }}>
                   "Click <strong>'Simulate Traffic'</strong> (50 RPS) to establish normal green flow. Then click <strong>'Inject Chaos'</strong>. Toxiproxy injects 500ms latency and 20% packet drop. Point out that Sentinel cancels requests at 200ms, trips the breaker to <strong>OPEN</strong>, and diverts 100% to Secondary fallback with <strong>zero client 500 errors</strong>."
                 </p>
               </div>
 
               {/* Step 3 */}
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '12px', border: '1px solid #1e293b' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#38bdf8', fontSize: '14px' }}>
+              <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#fbbf24', fontSize: '14px' }}>
                   <RotateCcw size={18} /> Step 3: Show Automatic Recovery
                 </div>
-                <p style={{ fontSize: '13px', color: '#cbd5e1', marginTop: '6px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '13px', color: '#d4d4d8', marginTop: '6px', lineHeight: 1.5 }}>
                   "Click <strong>'Heal Primary'</strong>. Explain that after the 5s cooldown, Sentinel enters <strong>HALF-OPEN</strong>, tests the healed service with trial requests, and cleanly resets back to <strong>CLOSED</strong>."
                 </p>
               </div>
 
               {/* Step 4: Talking points */}
-              <div style={{ background: 'rgba(56, 189, 248, 0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '13px', marginBottom: '8px' }}>
+              <div style={{ background: 'rgba(245, 158, 11, 0.06)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
+                <div style={{ fontWeight: 700, color: '#fbbf24', fontSize: '13px', marginBottom: '8px' }}>
                   💡 Top Interview Talking Points:
                 </div>
-                <ul style={{ fontSize: '12px', color: '#cbd5e1', paddingLeft: '20px', lineHeight: 1.6 }}>
+                <ul style={{ fontSize: '12px', color: '#d4d4d8', paddingLeft: '20px', lineHeight: 1.6 }}>
                   <li><strong>Memory Limit (128 MB)</strong>: Highlight that the dashboard proves Sentinel runs at ~8–15 MB RAM using <code>io.CopyBuffer</code> and <code>sync.Pool</code>.</li>
                   <li><strong>Concurrency Safety</strong>: Custom circuit breaker uses <code>sync.RWMutex</code> so read checks (99.9% of traffic) never block each other.</li>
                   <li><strong>React Performance</strong>: Decoupled WebSockets with <code>useRef</code> + <code>requestAnimationFrame</code> 50ms throttle prevents browser freezing.</li>
@@ -337,12 +329,12 @@ export default function App() {
                 onClick={() => setIsModalOpen(false)}
                 className="clickable"
                 style={{
-                  background: '#0284c7',
-                  color: '#fff',
+                  background: '#f59e0b',
+                  color: '#09090b',
                   border: 'none',
                   padding: '10px 24px',
                   borderRadius: '8px',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   fontSize: '13px',
                 }}
               >
@@ -370,18 +362,18 @@ export default function App() {
             width: '48px',
             height: '48px',
             borderRadius: '14px',
-            background: 'linear-gradient(135deg, #0284c7 0%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 24px rgba(14, 165, 233, 0.4)',
+            boxShadow: '0 0 24px rgba(245, 158, 11, 0.4)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
           }}>
-            <Server size={26} color="#fff" />
+            <Server size={26} color="#09090b" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h1 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.03em', color: '#f8fafc' }}>
+              <h1 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.03em', color: '#fafafa' }}>
                 PROJECT SENTINEL
               </h1>
               <span style={{
@@ -390,9 +382,9 @@ export default function App() {
                 letterSpacing: '0.08em',
                 padding: '3px 10px',
                 borderRadius: '6px',
-                background: 'rgba(6, 182, 212, 0.15)',
-                color: '#38bdf8',
-                border: '1px solid rgba(56, 189, 248, 0.3)',
+                background: 'rgba(245, 158, 11, 0.15)',
+                color: '#fbbf24',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
               }}>
                 WAR ROOM HUD
               </span>
@@ -439,9 +431,9 @@ export default function App() {
             border: '1px solid var(--border-subtle)',
             fontSize: '12px',
           }}>
-            <Cpu size={15} color="#06b6d4" />
+            <Cpu size={15} color="#f59e0b" />
             <span style={{ color: 'var(--text-dim)' }}>RAM:</span>
-            <span className="font-mono" style={{ fontWeight: 700, color: '#f8fafc' }}>
+            <span className="font-mono" style={{ fontWeight: 700, color: '#fafafa' }}>
               {memory.alloc_mb.toFixed(1)} MB
             </span>
             <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>/ 128MB</span>
@@ -455,9 +447,9 @@ export default function App() {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)',
-              border: '1px solid rgba(56, 189, 248, 0.4)',
-              color: '#38bdf8',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
+              color: '#fbbf24',
               padding: '8px 16px',
               borderRadius: '10px',
               fontSize: '13px',
@@ -482,7 +474,7 @@ export default function App() {
       }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '14px', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.02em' }}>
+            <span style={{ fontSize: '14px', fontWeight: 800, color: '#fafafa', letterSpacing: '0.02em' }}>
               INTERACTIVE CHAOS & LOAD CONTROL DECK
             </span>
           </div>
@@ -504,10 +496,10 @@ export default function App() {
               borderRadius: '10px',
               fontSize: '13px',
               fontWeight: 700,
-              border: trafficSimulating ? '1px solid #f59e0b' : '1px solid #334155',
-              background: trafficSimulating ? 'rgba(245, 158, 11, 0.15)' : '#1e293b',
-              color: trafficSimulating ? '#fbbf24' : '#f8fafc',
-              boxShadow: trafficSimulating ? '0 0 20px rgba(245, 158, 11, 0.2)' : 'none',
+              border: trafficSimulating ? '1px solid #f59e0b' : '1px solid #3f3f46',
+              background: trafficSimulating ? 'rgba(245, 158, 11, 0.2)' : '#18181b',
+              color: trafficSimulating ? '#fbbf24' : '#fafafa',
+              boxShadow: trafficSimulating ? '0 0 20px rgba(245, 158, 11, 0.25)' : 'none',
               transition: 'all 0.2s ease',
             }}
           >
@@ -528,10 +520,10 @@ export default function App() {
                 borderRadius: '10px',
                 fontSize: '13px',
                 fontWeight: 700,
-                border: '1px solid #f43f5e',
-                background: 'rgba(244, 63, 94, 0.15)',
-                color: '#fb7185',
-                boxShadow: '0 0 20px rgba(244, 63, 94, 0.15)',
+                border: '1px solid #ef4444',
+                background: 'rgba(239, 68, 68, 0.15)',
+                color: '#f87171',
+                boxShadow: '0 0 20px rgba(239, 68, 68, 0.15)',
                 transition: 'all 0.2s ease',
               }}
             >
@@ -574,9 +566,9 @@ export default function App() {
               borderRadius: '10px',
               fontSize: '13px',
               fontWeight: 600,
-              border: '1px solid #2d3b55',
-              background: '#131b2c',
-              color: '#94a3b8',
+              border: '1px solid #27272a',
+              background: '#18181b',
+              color: '#d4d4d8',
             }}
           >
             <Send size={14} />
@@ -584,6 +576,49 @@ export default function App() {
           </button>
         </div>
       </section>
+
+      {/* Manual Probe Result Card */}
+      {manualResult && (
+        <section className="glass-card" style={{
+          padding: '16px 20px',
+          marginBottom: '24px',
+          background: '#18181b',
+          border: '1px solid #27272a',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: 700 }}>LAST PROBE:</span>
+            <span style={{
+              fontSize: '12px',
+              padding: '3px 8px',
+              borderRadius: '6px',
+              fontWeight: 700,
+              background: manualResult.route === 'primary' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(249, 115, 22, 0.15)',
+              color: manualResult.route === 'primary' ? '#10b981' : '#f97316',
+              border: `1px solid ${manualResult.route === 'primary' ? '#10b981' : '#f97316'}`,
+            }}>
+              ROUTE: {manualResult.route.toUpperCase()}
+            </span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              Circuit: <strong style={{ color: '#fafafa' }}>{manualResult.circuit}</strong>
+            </span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              Latency: <strong className="font-mono" style={{ color: '#fbbf24' }}>{manualResult.elapsed} ms</strong>
+            </span>
+          </div>
+          <button 
+            onClick={() => setManualResult(null)}
+            className="clickable"
+            style={{ background: 'transparent', border: 'none', color: '#71717a', fontSize: '12px' }}
+          >
+            Clear
+          </button>
+        </section>
+      )}
 
       {/* Bento Tier 1: State Machine Card + SVG Network Topology */}
       <div style={{
@@ -637,7 +672,7 @@ export default function App() {
                 <h2 style={{ fontSize: '34px', fontWeight: 900, color: theme.color, letterSpacing: '-0.03em' }}>
                   {theme.name}
                 </h2>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '2px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#e4e4e7', marginTop: '2px' }}>
                   {theme.statusText}
                 </div>
               </div>
@@ -660,7 +695,7 @@ export default function App() {
           }}>
             <div>
               <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>FAILURES</div>
-              <div className="font-mono" style={{ fontSize: '22px', fontWeight: 800, color: state === 'OPEN' ? '#f43f5e' : '#f8fafc', marginTop: '4px' }}>
+              <div className="font-mono" style={{ fontSize: '22px', fontWeight: 800, color: state === 'OPEN' ? '#ef4444' : '#fafafa', marginTop: '4px' }}>
                 {metrics?.circuit_snapshot?.consecutive_failures || 0}
                 <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>/5</span>
               </div>
@@ -676,7 +711,7 @@ export default function App() {
               <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>
                 {state === 'OPEN' ? 'COOLDOWN' : 'TIMEOUT'}
               </div>
-              <div className="font-mono" style={{ fontSize: '22px', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
+              <div className="font-mono" style={{ fontSize: '22px', fontWeight: 800, color: '#fbbf24', marginTop: '4px' }}>
                 {state === 'OPEN' 
                   ? `${Math.max(0, Math.round((metrics?.circuit_snapshot?.timeout_remaining_ms || 0) / 1000))}s`
                   : '200ms'
@@ -698,17 +733,17 @@ export default function App() {
               LIVE NETWORK TOPOLOGY & ACTIVE LASER PATH
             </span>
             <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-              Dispatched Route: <strong style={{ color: state === 'CLOSED' ? '#10b981' : '#f59e0b' }}>
+              Dispatched Route: <strong style={{ color: state === 'CLOSED' ? '#10b981' : '#f97316' }}>
                 {state === 'CLOSED' ? 'Primary API (:8081)' : 'Secondary Fallback (:8082)'}
               </strong>
             </span>
           </div>
 
-          {/* Real Interactive SVG Path Diagram */}
+          {/* Real Interactive SVG Path Diagram - Zero Blue/Purple */}
           <div style={{
-            background: '#0a0e17',
+            background: '#121215',
             borderRadius: '14px',
-            border: '1px solid #1a2436',
+            border: '1px solid #27272a',
             padding: '20px',
             position: 'relative',
           }}>
@@ -717,7 +752,7 @@ export default function App() {
               <line 
                 x1="120" y1="120" 
                 x2="280" y2="120" 
-                stroke="#38bdf8" 
+                stroke="#f59e0b" 
                 strokeWidth="3" 
                 strokeDasharray="6,6"
                 className={trafficSimulating ? 'laser-active' : ''}
@@ -727,7 +762,7 @@ export default function App() {
               <path 
                 d="M 400 120 C 470 120, 500 50, 620 50" 
                 fill="none" 
-                stroke={state === 'OPEN' ? '#f43f5e' : '#10b981'} 
+                stroke={state === 'OPEN' ? '#ef4444' : '#10b981'} 
                 strokeWidth={state === 'OPEN' ? '2' : '3'}
                 strokeDasharray={state === 'OPEN' ? '4,4' : '8,8'}
                 className={state === 'CLOSED' && trafficSimulating ? 'laser-active' : ''}
@@ -738,17 +773,17 @@ export default function App() {
               <path 
                 d="M 400 120 C 470 120, 500 190, 620 190" 
                 fill="none" 
-                stroke={state !== 'CLOSED' ? '#f59e0b' : '#334155'} 
+                stroke={state !== 'CLOSED' ? '#f97316' : '#3f3f46'} 
                 strokeWidth={state !== 'CLOSED' ? '3' : '2'}
                 strokeDasharray="8,8"
                 className={state !== 'CLOSED' && trafficSimulating ? 'laser-active' : ''}
-                opacity={state !== 'CLOSED' ? 1 : 0.4}
+                opacity={state !== 'CLOSED' ? 1 : 0.35}
               />
 
               {/* Barrier marker on Primary when OPEN */}
               {state === 'OPEN' && (
                 <g transform="translate(500, 75)">
-                  <circle cx="0" cy="0" r="14" fill="#f43f5e" />
+                  <circle cx="0" cy="0" r="14" fill="#ef4444" />
                   <line x1="-6" y1="-6" x2="6" y2="6" stroke="#fff" strokeWidth="3" />
                   <line x1="6" y1="-6" x2="-6" y2="6" stroke="#fff" strokeWidth="3" />
                 </g>
@@ -756,37 +791,37 @@ export default function App() {
 
               {/* Node 1: Client Node */}
               <g transform="translate(40, 80)">
-                <rect width="110" height="80" rx="10" fill="#131b2e" stroke="#2a3a58" strokeWidth="2" />
-                <text x="55" y="36" textAnchor="middle" fill="#38bdf8" fontSize="13" fontWeight="bold">Clients</text>
-                <text x="55" y="56" textAnchor="middle" fill="#94a3b8" fontSize="10">{metrics?.rps || 0} RPS</text>
+                <rect width="110" height="80" rx="10" fill="#18181b" stroke="#3f3f46" strokeWidth="2" />
+                <text x="55" y="36" textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="bold">Clients</text>
+                <text x="55" y="56" textAnchor="middle" fill="#a1a1aa" fontSize="10">{metrics?.rps || 0} RPS</text>
               </g>
 
               {/* Node 2: Sentinel Proxy Node */}
               <g transform="translate(280, 70)">
                 <rect 
                   width="130" height="100" rx="14" 
-                  fill="#121a2c" 
+                  fill="#18181b" 
                   stroke={theme.border} 
                   strokeWidth="2.5" 
-                  filter="drop-shadow(0 0 10px rgba(14, 165, 233, 0.2))" 
+                  filter="drop-shadow(0 0 10px rgba(245, 158, 11, 0.2))" 
                 />
                 <text x="65" y="42" textAnchor="middle" fill={theme.color} fontSize="14" fontWeight="900">Sentinel</text>
-                <text x="65" y="62" textAnchor="middle" fill="#94a3b8" fontSize="11">Proxy :8080</text>
-                <text x="65" y="82" textAnchor="middle" fill="#64748b" fontSize="10">200ms Timeout</text>
+                <text x="65" y="62" textAnchor="middle" fill="#d4d4d8" fontSize="11">Proxy :8080</text>
+                <text x="65" y="82" textAnchor="middle" fill="#71717a" fontSize="10">200ms Timeout</text>
               </g>
 
               {/* Node 3: Primary API (Top Right) */}
               <g transform="translate(620, 15)">
                 <rect 
                   width="140" height="70" rx="10" 
-                  fill={state === 'CLOSED' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(244, 63, 94, 0.08)'} 
-                  stroke={state === 'CLOSED' ? '#10b981' : '#f43f5e'} 
+                  fill={state === 'CLOSED' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.08)'} 
+                  stroke={state === 'CLOSED' ? '#10b981' : '#ef4444'} 
                   strokeWidth="2" 
                 />
-                <text x="70" y="32" textAnchor="middle" fill={state === 'CLOSED' ? '#34d399' : '#fb7185'} fontSize="13" fontWeight="bold">
+                <text x="70" y="32" textAnchor="middle" fill={state === 'CLOSED' ? '#34d399' : '#f87171'} fontSize="13" fontWeight="bold">
                   Primary API
                 </text>
-                <text x="70" y="52" textAnchor="middle" fill="#94a3b8" fontSize="10">
+                <text x="70" y="52" textAnchor="middle" fill="#a1a1aa" fontSize="10">
                   {chaosActive ? '⚠️ Hostile (500ms)' : '⚡ Fast (~15ms)'}
                 </text>
               </g>
@@ -795,14 +830,14 @@ export default function App() {
               <g transform="translate(620, 155)">
                 <rect 
                   width="140" height="70" rx="10" 
-                  fill={state !== 'CLOSED' ? 'rgba(245, 158, 11, 0.15)' : '#131b2e'} 
-                  stroke={state !== 'CLOSED' ? '#f59e0b' : '#222f46'} 
+                  fill={state !== 'CLOSED' ? 'rgba(249, 115, 22, 0.15)' : '#18181b'} 
+                  stroke={state !== 'CLOSED' ? '#f97316' : '#27272a'} 
                   strokeWidth="2" 
                 />
-                <text x="70" y="32" textAnchor="middle" fill={state !== 'CLOSED' ? '#fbbf24' : '#94a3b8'} fontSize="13" fontWeight="bold">
+                <text x="70" y="32" textAnchor="middle" fill={state !== 'CLOSED' ? '#fb923c' : '#71717a'} fontSize="13" fontWeight="bold">
                   Secondary API
                 </text>
-                <text x="70" y="52" textAnchor="middle" fill="#64748b" fontSize="10">
+                <text x="70" y="52" textAnchor="middle" fill="#71717a" fontSize="10">
                   Fallback Cluster :8082
                 </text>
               </g>
@@ -822,13 +857,13 @@ export default function App() {
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>CURRENT THROUGHPUT</span>
-            <Activity size={18} color="#38bdf8" />
+            <Activity size={18} color="#10b981" />
           </div>
-          <div className="font-mono" style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: '#f8fafc' }}>
+          <div className="font-mono" style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: '#fafafa' }}>
             {metrics?.rps || 0} <span style={{ fontSize: '14px', color: 'var(--text-dim)', fontWeight: 600 }}>req/s</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Total Processed: <strong className="font-mono" style={{ color: '#f8fafc' }}>{(metrics?.total_requests || 0).toLocaleString()}</strong>
+            Total Processed: <strong className="font-mono" style={{ color: '#fafafa' }}>{(metrics?.total_requests || 0).toLocaleString()}</strong>
           </div>
         </div>
 
@@ -836,18 +871,18 @@ export default function App() {
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>AVERAGE LATENCY</span>
-            <Clock size={18} color="#f59e0b" />
+            <Clock size={18} color="#fbbf24" />
           </div>
           <div className="font-mono" style={{
             fontSize: '32px',
             fontWeight: 800,
             marginTop: '8px',
-            color: (metrics?.avg_latency_ms || 0) > 150 ? '#f43f5e' : '#10b981',
+            color: (metrics?.avg_latency_ms || 0) > 150 ? '#ef4444' : '#10b981',
           }}>
             {(metrics?.avg_latency_ms || 0).toFixed(1)} <span style={{ fontSize: '14px', color: 'var(--text-dim)' }}>ms</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Context Timeout Threshold: <strong style={{ color: '#f8fafc' }}>200 ms</strong>
+            Context Timeout Threshold: <strong style={{ color: '#fafafa' }}>200 ms</strong>
           </div>
         </div>
 
@@ -855,20 +890,20 @@ export default function App() {
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>ROUTE DISTRIBUTION</span>
-            <Layers size={18} color="#a855f7" />
+            <Layers size={18} color="#f97316" />
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', marginTop: '8px' }}>
             <div>
               <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>PRIMARY: </span>
-              <span className="font-mono" style={{ fontSize: '20px', fontWeight: 800 }}>{(metrics?.primary_requests || 0).toLocaleString()}</span>
+              <span className="font-mono" style={{ fontSize: '20px', fontWeight: 800, color: '#34d399' }}>{(metrics?.primary_requests || 0).toLocaleString()}</span>
             </div>
             <div>
-              <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700 }}>FALLBACK: </span>
-              <span className="font-mono" style={{ fontSize: '20px', fontWeight: 800 }}>{(metrics?.secondary_requests || 0).toLocaleString()}</span>
+              <span style={{ fontSize: '11px', color: '#f97316', fontWeight: 700 }}>FALLBACK: </span>
+              <span className="font-mono" style={{ fontSize: '20px', fontWeight: 800, color: '#fb923c' }}>{(metrics?.secondary_requests || 0).toLocaleString()}</span>
             </div>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Primary Success Ratio: <strong style={{ color: '#f8fafc' }}>{(metrics?.primary_success_rate || 100).toFixed(1)}%</strong>
+            Primary Success Ratio: <strong style={{ color: '#fafafa' }}>{(metrics?.primary_success_rate || 100).toFixed(1)}%</strong>
           </div>
         </div>
 
@@ -876,10 +911,10 @@ export default function App() {
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>CONTAINER MEMORY (128 MB)</span>
-            <Cpu size={18} color="#06b6d4" />
+            <Cpu size={18} color="#f59e0b" />
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <span className="font-mono" style={{ fontSize: '32px', fontWeight: 800, color: '#38bdf8' }}>
+            <span className="font-mono" style={{ fontSize: '32px', fontWeight: 800, color: '#fbbf24' }}>
               {memory.alloc_mb.toFixed(1)}
             </span>
             <span style={{ fontSize: '13px', color: 'var(--text-dim)' }}>
@@ -887,16 +922,16 @@ export default function App() {
             </span>
           </div>
           {/* Progress Bar */}
-          <div style={{ width: '100%', height: '6px', background: '#1e293b', borderRadius: '3px', marginTop: '10px', overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: '6px', background: '#27272a', borderRadius: '3px', marginTop: '10px', overflow: 'hidden' }}>
             <div style={{
               width: `${memPct}%`,
               height: '100%',
-              background: 'linear-gradient(90deg, #10b981 0%, #06b6d4 100%)',
+              background: 'linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #f97316 100%)',
               transition: 'width 0.3s ease',
             }} />
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '8px' }}>
-            Active Goroutines: <strong style={{ color: '#f8fafc' }}>{memory.num_goroutine}</strong> • Sys: <strong>{memory.sys_mb.toFixed(1)} MB</strong>
+            Active Goroutines: <strong style={{ color: '#fafafa' }}>{memory.num_goroutine}</strong> • Sys: <strong>{memory.sys_mb.toFixed(1)} MB</strong>
           </div>
         </div>
       </section>
@@ -913,15 +948,15 @@ export default function App() {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.04em' }}>
+              <span style={{ fontSize: '14px', fontWeight: 800, color: '#fafafa', letterSpacing: '0.04em' }}>
                 REAL-TIME ROUTE TELEMETRY STREAM
               </span>
               <span style={{
                 fontSize: '11px',
                 padding: '2px 8px',
                 borderRadius: '4px',
-                background: 'rgba(56, 189, 248, 0.15)',
-                color: '#38bdf8',
+                background: 'rgba(245, 158, 11, 0.15)',
+                color: '#fbbf24',
                 fontWeight: 700,
               }}>
                 60 FPS THROTTLED
@@ -945,9 +980,9 @@ export default function App() {
                   fontSize: '12px',
                   fontWeight: 600,
                   textTransform: 'capitalize',
-                  border: eventFilter === f ? '1px solid #38bdf8' : '1px solid #222f46',
-                  background: eventFilter === f ? 'rgba(56, 189, 248, 0.15)' : '#101624',
-                  color: eventFilter === f ? '#38bdf8' : '#94a3b8',
+                  border: eventFilter === f ? '1px solid #f59e0b' : '1px solid #27272a',
+                  background: eventFilter === f ? 'rgba(245, 158, 11, 0.15)' : '#18181b',
+                  color: eventFilter === f ? '#fbbf24' : '#a1a1aa',
                 }}
               >
                 {f}
@@ -965,9 +1000,9 @@ export default function App() {
                 borderRadius: '6px',
                 fontSize: '12px',
                 fontWeight: 600,
-                border: '1px solid #222f46',
-                background: isStreamPaused ? '#f59e0b' : '#101624',
-                color: isStreamPaused ? '#000' : '#94a3b8',
+                border: '1px solid #27272a',
+                background: isStreamPaused ? '#f59e0b' : '#18181b',
+                color: isStreamPaused ? '#09090b' : '#a1a1aa',
                 marginLeft: '6px',
               }}
             >
@@ -981,7 +1016,7 @@ export default function App() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #1f2a3f', color: 'var(--text-dim)' }}>
+              <tr style={{ borderBottom: '1px solid #27272a', color: 'var(--text-dim)' }}>
                 <th style={{ padding: '12px 14px' }}>TIMESTAMP</th>
                 <th style={{ padding: '12px 14px' }}>DISPATCHED ROUTE</th>
                 <th style={{ padding: '12px 14px' }}>HTTP STATUS</th>
@@ -993,7 +1028,7 @@ export default function App() {
               {filteredEvents.length > 0 ? (
                 filteredEvents.map((event, idx) => (
                   <tr key={idx} style={{
-                    borderBottom: '1px solid #141c2c',
+                    borderBottom: '1px solid #27272a',
                     background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
                   }}>
                     <td className="font-mono" style={{ padding: '10px 14px', color: 'var(--text-dim)' }}>
@@ -1015,8 +1050,8 @@ export default function App() {
                         <span style={{
                           padding: '3px 10px',
                           borderRadius: '6px',
-                          background: 'rgba(245, 158, 11, 0.15)',
-                          color: '#fbbf24',
+                          background: 'rgba(249, 115, 22, 0.15)',
+                          color: '#fb923c',
                           fontWeight: 700,
                           fontSize: '11px',
                         }}>
@@ -1024,15 +1059,15 @@ export default function App() {
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: '10px 14px', fontWeight: 700, color: event.status === 200 ? '#10b981' : '#f43f5e' }}>
+                    <td style={{ padding: '10px 14px', fontWeight: 700, color: event.status === 200 ? '#10b981' : '#ef4444' }}>
                       {event.status || 'TIMEOUT'}
                     </td>
                     <td className="font-mono" style={{ padding: '10px 14px' }}>
                       <span style={{
                         padding: '2px 8px',
                         borderRadius: '4px',
-                        background: event.duration_ms > 150 ? 'rgba(244, 63, 94, 0.15)' : 'rgba(56, 189, 248, 0.1)',
-                        color: event.duration_ms > 150 ? '#f43f5e' : '#38bdf8',
+                        background: event.duration_ms > 150 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.12)',
+                        color: event.duration_ms > 150 ? '#ef4444' : '#fbbf24',
                         fontWeight: 600,
                       }}>
                         {event.duration_ms.toFixed(1)} ms
@@ -1042,7 +1077,7 @@ export default function App() {
                       {event.success ? (
                         <span style={{ color: '#10b981' }}>Fulfilled seamlessly</span>
                       ) : (
-                        <span style={{ color: '#f43f5e', fontWeight: 600 }}>
+                        <span style={{ color: '#ef4444', fontWeight: 600 }}>
                           {event.reason === 'timeout_200ms' ? 'Context Timeout (>200ms) → Tripped Fallback' : event.reason}
                         </span>
                       )}
