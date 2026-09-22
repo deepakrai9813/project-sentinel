@@ -28,7 +28,7 @@ func main() {
 		w.Write([]byte("healthy"))
 	})
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	handleRequest := func(w http.ResponseWriter, r *http.Request) {
 		// Simulates standard processing time (15ms)
 		time.Sleep(15 * time.Millisecond)
 
@@ -42,7 +42,11 @@ func main() {
 			Message:   "Processed primary business transaction",
 		}
 		json.NewEncoder(w).Encode(resp)
-	})
+	}
+
+	mux.HandleFunc("/data", handleRequest)
+	mux.HandleFunc("/data/", handleRequest)
+	mux.HandleFunc("/", handleRequest)
 
 	server := &http.Server{
 		Addr:         ":" + port,

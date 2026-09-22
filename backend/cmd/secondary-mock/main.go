@@ -28,7 +28,7 @@ func main() {
 		w.Write([]byte("healthy"))
 	})
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	handleRequest := func(w http.ResponseWriter, r *http.Request) {
 		// Fallback service responds quickly (10ms)
 		time.Sleep(10 * time.Millisecond)
 
@@ -42,7 +42,11 @@ func main() {
 			Message:   "Served from secondary redundant fallback cluster",
 		}
 		json.NewEncoder(w).Encode(resp)
-	})
+	}
+
+	mux.HandleFunc("/data", handleRequest)
+	mux.HandleFunc("/data/", handleRequest)
+	mux.HandleFunc("/", handleRequest)
 
 	server := &http.Server{
 		Addr:         ":" + port,

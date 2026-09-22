@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -71,10 +72,18 @@ func main() {
 	})
 
 	// Built-in Load Simulator trigger (great for live recruiter demo)
-	var loadCancel context.CancelFunc
+	var (
+		loadMu     sync.Mutex
+		loadCancel context.CancelFunc
+	)
 	mux.HandleFunc("/api/simulate/load", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
 		action := r.URL.Query().Get("action")
+
+		loadMu.Lock()
+		defer loadMu.Unlock()
+
 		if action == "stop" {
 			if loadCancel != nil {
 				loadCancel()
@@ -115,7 +124,11 @@ func main() {
 		w.Write([]byte(`{"status":"started"}`))
 	})
 
-	// All other incoming requests are handled by Sentinel Proxy
+	// Explicit route mappings for proxied data endpoints
+	mux.Handle("/data", router)
+	mux.Handle("/data/", router)
+
+	// All other incoming requests fall through to Sentinel Proxy router
 	mux.Handle("/", router)
 
 	// Wrap mux with CORS middleware for frontend flexibility
@@ -150,6 +163,14 @@ func main() {
 
 	<-stop
 	log.Println("[Sentinel] Shutting down gracefully...")
+
+	// Cancel any active load simulation goroutines
+	loadMu.Lock()
+	if loadCancel != nil {
+		loadCancel()
+		loadCancel = nil
+	}
+	loadMu.Unlock()
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
