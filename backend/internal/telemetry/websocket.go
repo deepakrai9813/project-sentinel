@@ -12,13 +12,12 @@ import (
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins for dev/dashboard
+		return true
 	},
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-// Hub maintains the set of active WebSocket clients and broadcasts metrics.
 type Hub struct {
 	collector  *MetricsCollector
 	clients    map[*websocket.Conn]bool
@@ -29,7 +28,6 @@ type Hub struct {
 	quit       chan struct{}
 }
 
-// NewHub creates a new WebSocket Hub.
 func NewHub(collector *MetricsCollector) *Hub {
 	return &Hub{
 		collector:  collector,
@@ -41,9 +39,7 @@ func NewHub(collector *MetricsCollector) *Hub {
 	}
 }
 
-// Run starts the hub loop and the high-frequency ticker.
 func (h *Hub) Run() {
-	// 100ms ticker sends 10 updates/sec (high frequency for real-time War Room UI)
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
 
@@ -66,7 +62,6 @@ func (h *Hub) Run() {
 			h.mu.Unlock()
 
 		case <-ticker.C:
-			// Only broadcast if there are connected clients
 			h.mu.Lock()
 			clientCount := len(h.clients)
 			h.mu.Unlock()
@@ -82,7 +77,6 @@ func (h *Hub) Run() {
 	}
 }
 
-// broadcastToAll pushes the message to all connected clients, evicting any unresponsive clients.
 func (h *Hub) broadcastToAll(message []byte) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -93,7 +87,7 @@ func (h *Hub) broadcastToAll(message []byte) {
 		client.SetWriteDeadline(time.Now().Add(200 * time.Millisecond))
 		err := client.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
-			log.Printf("[WebSocket] Client write error (disconnecting): %v", err)
+			log.Printf("[WebSocket] Client write error: %v", err)
 			client.Close()
 			failedClients = append(failedClients, client)
 		}
@@ -104,7 +98,6 @@ func (h *Hub) broadcastToAll(message []byte) {
 	}
 }
 
-// ServeWS handles WebSocket upgrade requests from the frontend.
 func (h *Hub) ServeWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -114,7 +107,6 @@ func (h *Hub) ServeWS(w http.ResponseWriter, r *http.Request) {
 
 	h.register <- conn
 
-	// Reader pump to detect client close
 	go func() {
 		defer func() {
 			h.unregister <- conn

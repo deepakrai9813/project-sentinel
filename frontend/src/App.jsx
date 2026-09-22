@@ -18,7 +18,6 @@ import {
   Pause 
 } from 'lucide-react';
 
-// Design Theme Tokens based on Circuit State - Warm Carbon / Amber / Emerald / Tangerine (No Blue / Purple)
 const STATE_THEMES = {
   CLOSED: {
     name: 'CLOSED',
@@ -63,7 +62,6 @@ export default function App() {
   const [eventFilter, setEventFilter] = useState('all');
   const [isStreamPaused, setIsStreamPaused] = useState(false);
 
-  // High-Frequency Render Decoupling: Ingest at network speed, render at 60 FPS
   const latestDataRef = useRef(null);
   const animationFrameRef = useRef(null);
   const socketRef = useRef(null);
@@ -84,7 +82,7 @@ export default function App() {
         try {
           latestDataRef.current = JSON.parse(event.data);
         } catch (err) {
-          console.error('[Sentinel UI] Parse error:', err);
+          console.error('Parse error:', err);
         }
       };
 
@@ -100,7 +98,6 @@ export default function App() {
 
     connect();
 
-    // 50ms render loop (~20–60 FPS) prevents React reconciliation jank
     let lastRender = 0;
     function renderLoop(now) {
       if (now - lastRender >= 50) {
@@ -119,13 +116,12 @@ export default function App() {
     };
   }, [isStreamPaused]);
 
-  // Actions
   const toggleTraffic = async () => {
     const action = trafficSimulating ? 'stop' : 'start';
     try {
       await fetch(`/api/simulate/load?action=${action}`);
       setTrafficSimulating(!trafficSimulating);
-      showToast(action === 'start' ? '⚡ 50 RPS continuous client traffic started' : 'Traffic simulation paused');
+      showToast(action === 'start' ? '50 RPS continuous traffic started' : 'Traffic simulation paused');
     } catch (err) {
       showToast('Error toggling traffic: ' + err.message);
     }
@@ -158,7 +154,7 @@ export default function App() {
       const res = await fetch('/api/chaos/inject', { method: 'POST' });
       if (res.ok) {
         setChaosActive(true);
-        showToast('💣 Chaos Active: 500ms Latency + 20% Packet Drop injected');
+        showToast('Chaos Active: 500ms Latency + 20% Packet Drop injected');
       } else {
         throw new Error('API returned ' + res.status);
       }
@@ -172,7 +168,7 @@ export default function App() {
       const res = await fetch('/api/chaos/reset', { method: 'POST' });
       if (res.ok) {
         setChaosActive(false);
-        showToast('🛡️ Chaos Removed: Primary API restored to ~15ms latency');
+        showToast('Chaos Removed: Primary API restored to ~15ms latency');
       } else {
         throw new Error('API returned ' + res.status);
       }
@@ -192,7 +188,6 @@ export default function App() {
   const memory = metrics?.memory || { alloc_mb: 6.8, sys_mb: 16.4, num_goroutine: 12 };
   const memPct = Math.min(100, ((memory.alloc_mb / 128) * 100)).toFixed(1);
 
-  // Filtered recent events for the table
   const filteredEvents = useMemo(() => {
     if (!metrics?.recent_events) return [];
     let list = metrics.recent_events.slice().reverse();
@@ -205,7 +200,6 @@ export default function App() {
   return (
     <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '24px 24px 60px' }}>
       
-      {/* Toast Notification */}
       {toastMessage && (
         <div style={{
           position: 'fixed',
@@ -230,7 +224,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Recruiter Guide Modal */}
       {isModalOpen && (
         <div style={{
           position: 'fixed',
@@ -273,53 +266,49 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
               <HelpCircle size={24} color="#fbbf24" />
               <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fafafa' }}>
-                Recruiter Demo & Technical Defense Guide
+                System Architecture & Specifications
               </h2>
             </div>
             <p style={{ fontSize: '13px', color: '#a1a1aa', marginBottom: '24px' }}>
-              Use this script to deliver an unforgettable 3-minute demonstration to your interviewer.
+              Technical architecture and failure recovery lifecycle of Project Sentinel.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Step 1 */}
               <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#10b981', fontSize: '14px' }}>
-                  <CheckCircle2 size={18} /> Step 1: Explain The Architecture (60 seconds)
+                  <CheckCircle2 size={18} /> Core Gateway Architecture
                 </div>
                 <p style={{ fontSize: '13px', color: '#d4d4d8', marginTop: '6px', lineHeight: 1.5 }}>
-                  "Project Sentinel sits between clients and microservices. It multiplexes incoming requests with a custom zero-dependency Circuit Breaker in Go. It operates with a strict 200ms context timeout on the Primary API. Under load, it enforces a 128 MB RAM ceiling using pooled streaming buffers and socket reuse."
+                  Project Sentinel operates as a reverse proxy multiplexer with a custom zero-dependency Circuit Breaker in Go. It enforces a strict 200ms context timeout on Primary API requests, falling back to a secondary redundant cluster with zero client 5xx errors.
                 </p>
               </div>
 
-              {/* Step 2 */}
               <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#f59e0b', fontSize: '14px' }}>
-                  <Flame size={18} /> Step 2: Trigger Live Toxiproxy Chaos
+                  <Flame size={18} /> Chaos Injection & Automatic Fallback
                 </div>
                 <p style={{ fontSize: '13px', color: '#d4d4d8', marginTop: '6px', lineHeight: 1.5 }}>
-                  "Click <strong>'Simulate Traffic'</strong> (50 RPS) to establish normal green flow. Then click <strong>'Inject Chaos'</strong>. Toxiproxy injects 500ms latency and 20% packet drop. Point out that Sentinel cancels requests at 200ms, trips the breaker to <strong>OPEN</strong>, and diverts 100% to Secondary fallback with <strong>zero client 500 errors</strong>."
+                  Toxiproxy introduces 500ms latency and 20% packet drops on the primary upstream. The gateway cancels requests exceeding 200ms, trips the breaker to OPEN after 5 consecutive failures, and routes 100% of subsequent traffic to the secondary fallback without dropping requests.
                 </p>
               </div>
 
-              {/* Step 3 */}
               <div style={{ background: '#18181b', padding: '16px', borderRadius: '12px', border: '1px solid #27272a' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#fbbf24', fontSize: '14px' }}>
-                  <RotateCcw size={18} /> Step 3: Show Automatic Recovery
+                  <RotateCcw size={18} /> Self-Healing & Half-Open State
                 </div>
                 <p style={{ fontSize: '13px', color: '#d4d4d8', marginTop: '6px', lineHeight: 1.5 }}>
-                  "Click <strong>'Heal Primary'</strong>. Explain that after the 5s cooldown, Sentinel enters <strong>HALF-OPEN</strong>, tests the healed service with trial requests, and cleanly resets back to <strong>CLOSED</strong>."
+                  After a 5-second cooldown period, the circuit enters HALF-OPEN state, allowing a single trial request to probe the primary upstream. Upon 2 consecutive successes, the breaker automatically transitions back to CLOSED.
                 </p>
               </div>
 
-              {/* Step 4: Talking points */}
               <div style={{ background: 'rgba(245, 158, 11, 0.06)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
                 <div style={{ fontWeight: 700, color: '#fbbf24', fontSize: '13px', marginBottom: '8px' }}>
-                  💡 Top Interview Talking Points:
+                  Key Engineering Optimizations:
                 </div>
                 <ul style={{ fontSize: '12px', color: '#d4d4d8', paddingLeft: '20px', lineHeight: 1.6 }}>
-                  <li><strong>Memory Limit (128 MB)</strong>: Highlight that the dashboard proves Sentinel runs at ~8–15 MB RAM using <code>io.CopyBuffer</code> and <code>sync.Pool</code>.</li>
-                  <li><strong>Concurrency Safety</strong>: Custom circuit breaker uses <code>sync.RWMutex</code> so read checks (99.9% of traffic) never block each other.</li>
-                  <li><strong>React Performance</strong>: Decoupled WebSockets with <code>useRef</code> + <code>requestAnimationFrame</code> 50ms throttle prevents browser freezing.</li>
+                  <li><strong>128 MB Memory Ceiling:</strong> Uses pooled streaming buffers (sync.Pool) and connection pooling, keeping memory consumption around ~8–15 MB.</li>
+                  <li><strong>Concurrency Safety:</strong> State machine protected by sync.RWMutex with atomic metrics counters for high-throughput concurrency.</li>
+                  <li><strong>UI Performance:</strong> Ingestion decoupled via requestAnimationFrame (50ms render loop) to prevent browser thread saturation.</li>
                 </ul>
               </div>
             </div>
@@ -338,14 +327,13 @@ export default function App() {
                   fontSize: '13px',
                 }}
               >
-                Got It, Let's Demo!
+                Close
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modern Executive Header */}
       <header style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -356,7 +344,6 @@ export default function App() {
         flexWrap: 'wrap',
         gap: '20px',
       }}>
-        {/* Brand identity */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
             width: '48px',
@@ -386,7 +373,7 @@ export default function App() {
                 color: '#fbbf24',
                 border: '1px solid rgba(245, 158, 11, 0.3)',
               }}>
-                WAR ROOM HUD
+                GATEWAY DASHBOARD
               </span>
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '3px' }}>
@@ -395,9 +382,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Header Right Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-          {/* Live WebSocket Status Pill */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -420,7 +405,6 @@ export default function App() {
             </span>
           </div>
 
-          {/* RAM Ceiling Tag */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -439,7 +423,6 @@ export default function App() {
             <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>/ 128MB</span>
           </div>
 
-          {/* Interviewer Guide Button */}
           <button
             onClick={() => setIsModalOpen(true)}
             className="clickable"
@@ -457,12 +440,11 @@ export default function App() {
             }}
           >
             <HelpCircle size={16} />
-            Recruiter Demo Guide
+            System Architecture
           </button>
         </div>
       </header>
 
-      {/* Control Deck Bento Bar */}
       <section className="glass-card" style={{
         padding: '20px 24px',
         marginBottom: '24px',
@@ -475,16 +457,15 @@ export default function App() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', fontWeight: 800, color: '#fafafa', letterSpacing: '0.02em' }}>
-              INTERACTIVE CHAOS & LOAD CONTROL DECK
+              CHAOS & TRAFFIC CONTROL CONSOLE
             </span>
           </div>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Trigger 50 RPS traffic or inject Toxiproxy latency to demonstrate automatic fallback in real time.
+            Simulate 50 RPS traffic or inject Toxiproxy latency to demonstrate automatic fallback in real time.
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          {/* Traffic Simulator Button */}
           <button
             onClick={toggleTraffic}
             className="clickable"
@@ -504,10 +485,9 @@ export default function App() {
             }}
           >
             <Zap size={16} />
-            {trafficSimulating ? 'Stop Traffic Load' : '⚡ Simulate Traffic (50 RPS)'}
+            {trafficSimulating ? 'Stop Traffic Load' : 'Simulate Traffic (50 RPS)'}
           </button>
 
-          {/* Chaos Injection Button */}
           {!chaosActive ? (
             <button
               onClick={injectChaos}
@@ -528,7 +508,7 @@ export default function App() {
               }}
             >
               <Flame size={16} />
-              💣 Inject Chaos (500ms Latency)
+              Inject Chaos (500ms Latency)
             </button>
           ) : (
             <button
@@ -550,11 +530,10 @@ export default function App() {
               }}
             >
               <RotateCcw size={16} />
-              🛡️ Heal Primary (Restore 15ms)
+              Heal Primary (Restore 15ms)
             </button>
           )}
 
-          {/* Single Probe Button */}
           <button
             onClick={sendManualRequest}
             className="clickable"
@@ -577,7 +556,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* Manual Probe Result Card */}
       {manualResult && (
         <section className="glass-card" style={{
           padding: '16px 20px',
@@ -620,14 +598,12 @@ export default function App() {
         </section>
       )}
 
-      {/* Bento Tier 1: State Machine Card + SVG Network Topology */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'minmax(340px, 1fr) 2fr',
         gap: '24px',
         marginBottom: '24px',
       }}>
-        {/* State Machine Status Card */}
         <div className="glass-card" style={{
           padding: '28px',
           border: `2px solid ${theme.border}`,
@@ -650,7 +626,7 @@ export default function App() {
                 color: theme.color,
                 border: `1px solid ${theme.border}`,
               }}>
-                FROM SCRATCH
+                STATE MACHINE
               </span>
             </div>
 
@@ -683,7 +659,6 @@ export default function App() {
             </p>
           </div>
 
-          {/* Counters Grid */}
           <div style={{
             marginTop: '28px',
             paddingTop: '20px',
@@ -721,7 +696,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* SVG Network Topology Canvas */}
         <div className="glass-card" style={{
           padding: '24px',
           display: 'flex',
@@ -730,7 +704,7 @@ export default function App() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', color: 'var(--text-dim)' }}>
-              LIVE NETWORK TOPOLOGY & ACTIVE LASER PATH
+              NETWORK TOPOLOGY & ACTIVE DISPATCH PATH
             </span>
             <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
               Dispatched Route: <strong style={{ color: state === 'CLOSED' ? '#10b981' : '#f97316' }}>
@@ -739,7 +713,6 @@ export default function App() {
             </span>
           </div>
 
-          {/* Real Interactive SVG Path Diagram - Zero Blue/Purple */}
           <div style={{
             background: '#121215',
             borderRadius: '14px',
@@ -748,7 +721,6 @@ export default function App() {
             position: 'relative',
           }}>
             <svg viewBox="0 0 800 240" style={{ width: '100%', height: 'auto', overflow: 'visible' }}>
-              {/* Path 1: Client to Sentinel (Direct Line) */}
               <line 
                 x1="120" y1="120" 
                 x2="280" y2="120" 
@@ -758,7 +730,6 @@ export default function App() {
                 className={trafficSimulating ? 'laser-active' : ''}
               />
 
-              {/* Path 2: Sentinel to Primary (Upper Curved Arc) */}
               <path 
                 d="M 400 120 C 470 120, 500 50, 620 50" 
                 fill="none" 
@@ -769,7 +740,6 @@ export default function App() {
                 opacity={state === 'OPEN' ? 0.35 : 1}
               />
 
-              {/* Path 3: Sentinel to Secondary Fallback (Lower Curved Arc) */}
               <path 
                 d="M 400 120 C 470 120, 500 190, 620 190" 
                 fill="none" 
@@ -780,7 +750,6 @@ export default function App() {
                 opacity={state !== 'CLOSED' ? 1 : 0.35}
               />
 
-              {/* Barrier marker on Primary when OPEN */}
               {state === 'OPEN' && (
                 <g transform="translate(500, 75)">
                   <circle cx="0" cy="0" r="14" fill="#ef4444" />
@@ -789,14 +758,12 @@ export default function App() {
                 </g>
               )}
 
-              {/* Node 1: Client Node */}
               <g transform="translate(40, 80)">
                 <rect width="110" height="80" rx="10" fill="#18181b" stroke="#3f3f46" strokeWidth="2" />
                 <text x="55" y="36" textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="bold">Clients</text>
                 <text x="55" y="56" textAnchor="middle" fill="#a1a1aa" fontSize="10">{metrics?.rps || 0} RPS</text>
               </g>
 
-              {/* Node 2: Sentinel Proxy Node */}
               <g transform="translate(280, 70)">
                 <rect 
                   width="130" height="100" rx="14" 
@@ -810,7 +777,6 @@ export default function App() {
                 <text x="65" y="82" textAnchor="middle" fill="#71717a" fontSize="10">200ms Timeout</text>
               </g>
 
-              {/* Node 3: Primary API (Top Right) */}
               <g transform="translate(620, 15)">
                 <rect 
                   width="140" height="70" rx="10" 
@@ -822,11 +788,10 @@ export default function App() {
                   Primary API
                 </text>
                 <text x="70" y="52" textAnchor="middle" fill="#a1a1aa" fontSize="10">
-                  {chaosActive ? '⚠️ Hostile (500ms)' : '⚡ Fast (~15ms)'}
+                  {chaosActive ? 'Hostile (500ms)' : 'Fast (~15ms)'}
                 </text>
               </g>
 
-              {/* Node 4: Secondary Fallback API (Bottom Right) */}
               <g transform="translate(620, 155)">
                 <rect 
                   width="140" height="70" rx="10" 
@@ -834,7 +799,7 @@ export default function App() {
                   stroke={state !== 'CLOSED' ? '#f97316' : '#27272a'} 
                   strokeWidth="2" 
                 />
-                <text x="70" y="32" textAnchor="middle" fill={state !== 'CLOSED' ? '#fb923c' : '#71717a'} fontSize="13" fontWeight="bold">
+                <text x="70" y="32" textAnchor="middle" fill={state !== 'CLOSED' ? '#fbbf24' : '#71717a'} fontSize="13" fontWeight="bold">
                   Secondary API
                 </text>
                 <text x="70" y="52" textAnchor="middle" fill="#71717a" fontSize="10">
@@ -846,14 +811,12 @@ export default function App() {
         </div>
       </div>
 
-      {/* Bento Tier 2: 4 Telemetry Metrics Cards */}
       <section style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
         gap: '20px',
         marginBottom: '24px',
       }}>
-        {/* Metric 1: Throughput */}
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>CURRENT THROUGHPUT</span>
@@ -867,7 +830,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Metric 2: Average Latency */}
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>AVERAGE LATENCY</span>
@@ -886,7 +848,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Metric 3: Route Split Breakdown */}
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>ROUTE DISTRIBUTION</span>
@@ -899,7 +860,7 @@ export default function App() {
             </div>
             <div>
               <span style={{ fontSize: '11px', color: '#f97316', fontWeight: 700 }}>FALLBACK: </span>
-              <span className="font-mono" style={{ fontSize: '20px', fontWeight: 800, color: '#fb923c' }}>{(metrics?.secondary_requests || 0).toLocaleString()}</span>
+              <span className="font-mono" style={{ fontSize: '20px', fontWeight: 800, color: '#fbbf24' }}>{(metrics?.secondary_requests || 0).toLocaleString()}</span>
             </div>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
@@ -907,7 +868,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Metric 4: 128 MB Memory Ceiling Proof */}
         <div className="glass-card" style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)' }}>CONTAINER MEMORY (128 MB)</span>
@@ -921,7 +881,6 @@ export default function App() {
               MB ({memPct}% of 128MB)
             </span>
           </div>
-          {/* Progress Bar */}
           <div style={{ width: '100%', height: '6px', background: '#27272a', borderRadius: '3px', marginTop: '10px', overflow: 'hidden' }}>
             <div style={{
               width: `${memPct}%`,
@@ -936,7 +895,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* Bento Tier 3: Telemetry Stream Table with UI/UX Filters */}
       <section className="glass-card" style={{ padding: '24px' }}>
         <div style={{
           display: 'flex',
@@ -967,7 +925,6 @@ export default function App() {
             </p>
           </div>
 
-          {/* Filters & Pause Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {['all', 'primary', 'secondary', 'timeouts'].map((f) => (
               <button
@@ -1012,7 +969,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Event Log Table */}
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
             <thead>
@@ -1087,7 +1043,7 @@ export default function App() {
               ) : (
                 <tr>
                   <td colSpan="5" style={{ padding: '36px', textAlign: 'center', color: 'var(--text-dim)' }}>
-                    No events match current filter. Click <strong>"⚡ Simulate Traffic"</strong> or <strong>"Test 1 Probe"</strong> above.
+                    No events match current filter. Click <strong>"Simulate Traffic"</strong> or <strong>"Test 1 Probe"</strong> above.
                   </td>
                 </tr>
               )}

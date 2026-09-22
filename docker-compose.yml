@@ -1,9 +1,4 @@
-version: '3.8'
-
 services:
-  # ==========================================================
-  # 1. Primary Mock API (Standard fast ~15ms responses)
-  # ==========================================================
   primary-api:
     build:
       context: ./backend
@@ -15,9 +10,6 @@ services:
       - sentinel-net
     restart: unless-stopped
 
-  # ==========================================================
-  # 2. Secondary Mock API (Fallback redundant cluster)
-  # ==========================================================
   secondary-api:
     build:
       context: ./backend
@@ -31,21 +23,15 @@ services:
       - sentinel-net
     restart: unless-stopped
 
-  # ==========================================================
-  # 3. Toxiproxy (Chaos Engineering Proxy)
-  # ==========================================================
   toxiproxy:
     image: ghcr.io/shopify/toxiproxy:2.9.0
     ports:
-      - "8474:8474" # Toxiproxy Management API
-      - "8475:8475" # Proxied upstream port routing to Primary API
+      - "8474:8474"
+      - "8475:8475"
     networks:
       - sentinel-net
     restart: unless-stopped
 
-  # ==========================================================
-  # 4. Toxiproxy Auto-Initializer (Turnkey Proxy Setup)
-  # ==========================================================
   toxiproxy-init:
     image: curlimages/curl:8.7.1
     depends_on:
@@ -57,24 +43,19 @@ services:
       - /bin/sh
       - -c
       - |
-        echo 'Waiting for Toxiproxy to become ready...'
+        echo 'Waiting for Toxiproxy...'
         until curl -s http://toxiproxy:8474/version; do sleep 1; done
-        echo 'Registering primary_api proxy route in Toxiproxy...'
         curl -s -X POST http://toxiproxy:8474/proxies \
           -H 'Content-Type: application/json' \
           -d '{"name":"primary_api","listen":"0.0.0.0:8475","upstream":"primary-api:8081","enabled":true}'
-        echo 'Toxiproxy initialization complete!'
     restart: "no"
 
-  # ==========================================================
-  # 5. Project Sentinel Backend (Go Reverse Proxy & Circuit Breaker)
-  # ==========================================================
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     entrypoint: ["/usr/local/bin/sentinel"]
-    mem_limit: 128m # Strict 128MB RAM limit per assignment specification
+    mem_limit: 128m
     environment:
       - PORT=8080
       - PRIMARY_URL=http://toxiproxy:8475
@@ -89,9 +70,6 @@ services:
       - sentinel-net
     restart: unless-stopped
 
-  # ==========================================================
-  # 6. React Frontend ("War Room" Live Dashboard)
-  # ==========================================================
   frontend:
     build:
       context: ./frontend

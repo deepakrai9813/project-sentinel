@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// State represents the state of the circuit breaker.
 type State string
 
 const (
@@ -16,25 +15,17 @@ const (
 )
 
 var (
-	// ErrCircuitOpen is returned when the circuit breaker is in OPEN state.
-	ErrCircuitOpen = errors.New("circuit breaker is open; traffic routed to fallback")
-	// ErrTooManyRequests is returned when HALF_OPEN state max trial requests are reached.
+	ErrCircuitOpen     = errors.New("circuit breaker is open; traffic routed to fallback")
 	ErrTooManyRequests = errors.New("circuit breaker is half-open; max trial requests exceeded")
 )
 
-// Config holds configuration parameters for the CircuitBreaker.
 type Config struct {
-	// FailureThreshold is the number of consecutive failures needed to trip from CLOSED to OPEN.
-	FailureThreshold int
-	// SuccessThreshold is the number of consecutive successes in HALF_OPEN to transition back to CLOSED.
-	SuccessThreshold int
-	// Timeout is the cooldown duration the circuit stays OPEN before entering HALF_OPEN.
-	Timeout time.Duration
-	// MaxHalfOpenRequests is how many concurrent trial requests are permitted in HALF_OPEN state.
+	FailureThreshold    int
+	SuccessThreshold    int
+	Timeout             time.Duration
 	MaxHalfOpenRequests int
 }
 
-// DefaultConfig provides standard, production-ready defaults.
 func DefaultConfig() Config {
 	return Config{
 		FailureThreshold:    5,
@@ -44,7 +35,6 @@ func DefaultConfig() Config {
 	}
 }
 
-// CircuitBreaker manages resilient execution across states.
 type CircuitBreaker struct {
 	mu                  sync.RWMutex
 	state               State
@@ -59,7 +49,6 @@ type CircuitBreaker struct {
 	lastStateChange      time.Time
 }
 
-// New creates a new CircuitBreaker with the provided configuration.
 func New(cfg Config) *CircuitBreaker {
 	if cfg.FailureThreshold <= 0 {
 		cfg.FailureThreshold = 5
@@ -84,7 +73,6 @@ func New(cfg Config) *CircuitBreaker {
 	}
 }
 
-// State returns the current circuit breaker state, automatically checking for timeout expiration.
 func (cb *CircuitBreaker) State() State {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -92,8 +80,6 @@ func (cb *CircuitBreaker) State() State {
 	return cb.state
 }
 
-// Allow checks if a request is permitted to reach the primary target.
-// Returns an error if the circuit is OPEN or if max trials in HALF_OPEN are exceeded.
 func (cb *CircuitBreaker) Allow() error {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -116,15 +102,12 @@ func (cb *CircuitBreaker) Allow() error {
 	}
 }
 
-// RecordSuccess records a successful execution to the primary API.
 func (cb *CircuitBreaker) RecordSuccess() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 
 	switch cb.state {
 	case StateClosed:
-		// In CLOSED state, successes reset failure count.
-		// Consecutive successes are strictly tracked during HALF_OPEN to reach successThreshold.
 		cb.consecutiveFailures = 0
 		cb.consecutiveSuccesses = 0
 	case StateHalfOpen:
@@ -138,7 +121,6 @@ func (cb *CircuitBreaker) RecordSuccess() {
 	}
 }
 
-// RecordFailure records a failed execution to the primary API (timeout, 5xx, or network failure).
 func (cb *CircuitBreaker) RecordFailure() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -154,12 +136,10 @@ func (cb *CircuitBreaker) RecordFailure() {
 		if cb.activeHalfOpenTrials > 0 {
 			cb.activeHalfOpenTrials--
 		}
-		// Any failure during trial immediately trips back to OPEN
 		cb.toStateLocked(StateOpen)
 	}
 }
 
-// Snapshot returns a copy of current metrics for telemetry/WebSocket export.
 type Snapshot struct {
 	State                State         `json:"state"`
 	ConsecutiveFailures  int           `json:"consecutive_failures"`
@@ -168,7 +148,6 @@ type Snapshot struct {
 	TimeoutRemaining     time.Duration `json:"timeout_remaining_ms"`
 }
 
-// Snapshot returns the current status snapshot of the circuit breaker.
 func (cb *CircuitBreaker) Snapshot() Snapshot {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -197,14 +176,12 @@ func (cb *CircuitBreaker) Snapshot() Snapshot {
 	}
 }
 
-// Internal helper must be called while holding cb.mu Lock.
 func (cb *CircuitBreaker) checkStateTransitionLocked() {
 	if cb.state == StateOpen && time.Since(cb.lastStateChange) >= cb.timeout {
 		cb.toStateLocked(StateHalfOpen)
 	}
 }
 
-// Internal transition handler must be called while holding cb.mu Lock.
 func (cb *CircuitBreaker) toStateLocked(target State) {
 	cb.state = target
 	cb.lastStateChange = time.Now()

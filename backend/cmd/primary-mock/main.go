@@ -29,7 +29,6 @@ func main() {
 	})
 
 	handleRequest := func(w http.ResponseWriter, r *http.Request) {
-		// Simulates standard processing time (15ms)
 		time.Sleep(15 * time.Millisecond)
 
 		w.Header().Set("Content-Type", "application/json")

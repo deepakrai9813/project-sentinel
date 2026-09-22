@@ -11,7 +11,6 @@ func TestMetricsCollector_RecordAndSnapshot(t *testing.T) {
 	cb := circuitbreaker.New(circuitbreaker.DefaultConfig())
 	collector := NewMetricsCollector(cb)
 
-	// Simulate requests
 	collector.IncrementRPS()
 	collector.IncrementRPS()
 	collector.RecordRequest("primary", 200, 15*time.Millisecond, true, "")

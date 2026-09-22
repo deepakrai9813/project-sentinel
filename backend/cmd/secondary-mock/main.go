@@ -29,7 +29,6 @@ func main() {
 	})
 
 	handleRequest := func(w http.ResponseWriter, r *http.Request) {
-		// Fallback service responds quickly (10ms)
 		time.Sleep(10 * time.Millisecond)
 
 		w.Header().Set("Content-Type", "application/json")

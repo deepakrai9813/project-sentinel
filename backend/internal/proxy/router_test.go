@@ -13,14 +13,12 @@ import (
 )
 
 func TestRouter_PrimaryFastSuccess(t *testing.T) {
-	// Fast Primary server
 	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("from primary"))
 	}))
 	defer primary.Close()
 
-	// Secondary server
 	secondary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("from fallback"))
@@ -56,15 +54,13 @@ func TestRouter_PrimaryFastSuccess(t *testing.T) {
 }
 
 func TestRouter_ContextTimeoutFallsBackToSecondary(t *testing.T) {
-	// Slow Primary server (>200ms)
 	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		time.Sleep(350 * time.Millisecond) // Exceeds 200ms
+		time.Sleep(350 * time.Millisecond)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("slow primary"))
 	}))
 	defer primary.Close()
 
-	// Secondary server responds quickly
 	secondary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("from fallback"))
@@ -90,7 +86,6 @@ func TestRouter_ContextTimeoutFallsBackToSecondary(t *testing.T) {
 	router.ServeHTTP(w, req)
 	elapsed := time.Since(start)
 
-	// Primary timed out around ~200ms, and fallback took minimal time (< 300ms total)
 	if elapsed > 400*time.Millisecond {
 		t.Fatalf("expected request to complete around ~200-300ms, took %v", elapsed)
 	}
@@ -107,15 +102,13 @@ func TestRouter_ContextTimeoutFallsBackToSecondary(t *testing.T) {
 }
 
 func TestRouter_POSTBodyRewindOnFallback(t *testing.T) {
-	// Slow Primary server (>200ms)
 	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		time.Sleep(300 * time.Millisecond) // Exceeds 200ms timeout
+		time.Sleep(300 * time.Millisecond)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer primary.Close()
 
 	var receivedFallbackBody string
-	// Secondary server receives the replayed body
 	secondary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b, err := io.ReadAll(r.Body)
 		if err != nil {

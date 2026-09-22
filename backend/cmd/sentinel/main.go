@@ -29,11 +29,10 @@ func main() {
 	primaryURL := getEnv("PRIMARY_URL", "http://localhost:8081")
 	secondaryURL := getEnv("SECONDARY_URL", "http://localhost:8082")
 
-	log.Printf("[Sentinel] Starting Project Sentinel Multiplexer on port :%s", port)
+	log.Printf("[Sentinel] Starting on port :%s", port)
 	log.Printf("[Sentinel] Primary Target:   %s", primaryURL)
 	log.Printf("[Sentinel] Secondary Target: %s", secondaryURL)
 
-	// 1. Initialize Circuit Breaker from scratch
 	cbConfig := circuitbreaker.Config{
 		FailureThreshold:    5,
 		SuccessThreshold:    2,
@@ -42,51 +41,43 @@ func main() {
 	}
 	cb := circuitbreaker.New(cbConfig)
 
-	// 2. Initialize Telemetry & WebSocket Hub
 	metricsCollector := telemetry.NewMetricsCollector(cb)
 	hub := telemetry.NewHub(metricsCollector)
 	go hub.Run()
 
-	// 3. Initialize Proxy Router
 	routerConfig := proxy.RouterConfig{
 		PrimaryURL:     primaryURL,
 		SecondaryURL:   secondaryURL,
-		Timeout:        200 * time.Millisecond, // Strict 200ms context timeout per spec
-		MaxConcurrency: 2000,                   // Strict Goroutine ceiling for 128MB limit
+		Timeout:        200 * time.Millisecond,
+		MaxConcurrency: 2000,
 	}
 	router, err := proxy.NewRouter(routerConfig, cb, metricsCollector)
 	if err != nil {
 		log.Fatalf("[Sentinel] Failed to initialize router: %v", err)
 	}
 
-	// 4. Set up HTTP Handlers
 	mux := http.NewServeMux()
 
-	// WebSocket Telemetry endpoint
 	mux.HandleFunc("/ws", hub.ServeWS)
 
-	// REST Metrics snapshot endpoint
 	mux.HandleFunc("/api/metrics", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		json.NewEncoder(w).Encode(metricsCollector.GetSnapshot())
 	})
 
-	// Chaos Engineering Controls (bridges frontend to Toxiproxy securely)
 	toxiURL := getEnv("TOXIPROXY_URL", "http://localhost:8474")
 	mux.HandleFunc("/api/chaos/inject", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		client := &http.Client{Timeout: 3 * time.Second}
 
-		// 1. Latency toxic (500ms)
 		lBody := bytes.NewBufferString(`{"name":"latency_chaos","type":"latency","stream":"downstream","toxicity":1.0,"attributes":{"latency":500,"jitter":0}}`)
 		req1, _ := http.NewRequest("POST", toxiURL+"/proxies/primary_api/toxics", lBody)
 		req1.Header.Set("Content-Type", "application/json")
 		req1.Header.Set("User-Agent", "sentinel-chaos")
 		client.Do(req1)
 
-		// 2. Timeout toxic (20% packet drop)
 		pBody := bytes.NewBufferString(`{"name":"loss_chaos","type":"timeout","stream":"downstream","toxicity":0.2,"attributes":{"timeout":1000}}`)
 		req2, _ := http.NewRequest("POST", toxiURL+"/proxies/primary_api/toxics", pBody)
 		req2.Header.Set("Content-Type", "application/json")
@@ -112,7 +103,6 @@ func main() {
 		w.Write([]byte(`{"status":"chaos_healed"}`))
 	})
 
-	// Built-in Load Simulator trigger (great for live recruiter demo)
 	var (
 		loadMu     sync.Mutex
 		loadCancel context.CancelFunc
@@ -142,9 +132,8 @@ func main() {
 		ctx, cancel := context.WithCancel(context.Background())
 		loadCancel = cancel
 
-		// Run simulated client traffic (e.g. 50 requests/sec)
 		go func() {
-			ticker := time.NewTicker(20 * time.Millisecond) // ~50 RPS
+			ticker := time.NewTicker(20 * time.Millisecond)
 			defer ticker.Stop()
 			client := &http.Client{Timeout: 1 * time.Second}
 			for {
@@ -165,14 +154,10 @@ func main() {
 		w.Write([]byte(`{"status":"started"}`))
 	})
 
-	// Explicit route mappings for proxied data endpoints
 	mux.Handle("/data", router)
 	mux.Handle("/data/", router)
-
-	// All other incoming requests fall through to Sentinel Proxy router
 	mux.Handle("/", router)
 
-	// Wrap mux with CORS middleware for frontend flexibility
 	corsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -191,7 +176,6 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	// 5. Graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
@@ -205,7 +189,6 @@ func main() {
 	<-stop
 	log.Println("[Sentinel] Shutting down gracefully...")
 
-	// Cancel any active load simulation goroutines
 	loadMu.Lock()
 	if loadCancel != nil {
 		loadCancel()
@@ -219,5 +202,5 @@ func main() {
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		log.Printf("[Sentinel] Forced shutdown: %v", err)
 	}
-	log.Println("[Sentinel] Server exited successfully.")
+	log.Println("[Sentinel] Server exited.")
 }

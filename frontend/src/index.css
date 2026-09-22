@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Carbon & Warm Industrial Tokens - Completely Free of Blue and Purple */
   --bg-app: #09090b;
   --bg-card: rgba(24, 24, 27, 0.75);
   --bg-card-hover: rgba(39, 39, 42, 0.85);
@@ -17,7 +16,6 @@
   --text-muted: #a1a1aa;
   --text-dim: #71717a;
 
-  /* Semantic State Accents */
   --emerald-neon: #10b981;
   --emerald-glow: rgba(16, 185, 129, 0.25);
   --rose-neon: #ef4444;
@@ -60,7 +58,6 @@ code, .font-mono {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Glassmorphism Card Utility */
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -80,7 +77,6 @@ code, .font-mono {
   user-select: none;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -96,7 +92,6 @@ code, .font-mono {
   background: #3f3f46;
 }
 
-/* SVG Laser Beam Animations */
 @keyframes dash {
   to {
     stroke-dashoffset: -100;
@@ -123,7 +118,6 @@ code, .font-mono {
   animation: pulseGlow 2.5s infinite ease-in-out;
 }
 
-/* Smooth Focus States */
 button:focus-visible, a:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
