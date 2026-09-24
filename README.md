@@ -1,139 +1,112 @@
-# Project Sentinel
+# Project Sentinel 🛡️
 
-[![Go](https://img.shields.io/badge/Go-1.22-00ADD8?style=flat&logo=go)](https://golang.org)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react)](https://react.dev)
-[![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=flat&logo=docker)](https://docker.com)
-[![Memory Limit](https://img.shields.io/badge/Memory_Limit-128_MB-critical)](https://github.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+A lightweight, fault-tolerant API gateway and reverse proxy with a custom Circuit Breaker and real-time dashboard, built in Go and React.
 
-A high-performance, fault-tolerant API gateway and reverse proxy built from scratch in Go. Project Sentinel multiplexes upstream traffic with a zero-dependency Circuit Breaker state machine, strict 200ms context timeouts, zero-allocation buffer pooling under a strict 128 MB RAM constraint, and a real-time observability dashboard built with React.
+I built Project Sentinel to tackle a common problem in backend microservices: when one service slows down or crashes, it shouldn't bring down your whole platform. Sentinel sits between clients and backend services, catching slow requests (>200ms) and automatically routing traffic to a backup service without dropping user requests.
 
 ---
 
-## 🎥 Demo Video Walkthrough
+## 🎥 Video Demo
+I recorded a quick video walkthrough demonstrating the dashboard, injecting chaos with Toxiproxy, and showing how Sentinel automatically recovers:
 
-> **[▶️ Click here to watch the full Demonstration Walkthrough (docs/demo.mp4)](./docs/demo.mp4)**
-> 
-> A complete demonstration showing:
-> - **Live Operations:** Baseline traffic dispatched to Primary API (`:8081`) with ~15ms response times.
-> - **Chaos Engineering:** Injecting 500ms latency and 20% packet drops via Toxiproxy.
-> - **Resilient Circuit Breaking:** Automatic 200ms context timeout enforcement, tripping to `OPEN` after 5 consecutive failures.
-> - **Seamless Redundancy:** Instant failover to Secondary API (`:8082`) with zero dropped requests (100% 200 OK responses).
-> - **Autonomous Self-Healing:** 5-second cooldown evaluation, controlled trial probe in `HALF-OPEN`, and automatic recovery back to `CLOSED`.
+👉 **[Watch the Demo Video (docs/demo.mp4)](./docs/demo.mp4)**
+
+---
+
+## What It Does
+
+- **Custom Circuit Breaker (built from scratch in Go):**
+  - **CLOSED (Green):** Normal state. All requests go to the Primary API (~15ms).
+  - **OPEN (Red):** If the Primary API takes longer than 200ms or fails 5 times in a row, Sentinel stops sending traffic there and routes 100% of requests to the backup Secondary API.
+  - **HALF-OPEN (Yellow):** After a 5-second cooldown, Sentinel sends a couple of trial requests to test if the Primary API is healthy again. If they succeed, it switches back to CLOSED automatically.
+- **Strict 200ms Timeout:** Never leaves users hanging. If the primary service is slow, the request is cancelled at 200ms and immediately tried on the backup.
+- **Rewindable Request Body:** For `POST` and `PUT` requests, the request body is buffered so it can be replayed to the fallback server without data loss.
+- **Low Memory Footprint (~8–10 MB):** Built with `sync.Pool` buffer reuse to easily stay well within a 128 MB Docker memory limit.
+- **Live Dashboard:** A real-time React UI that connects via WebSockets and updates at 60 FPS without browser lag.
+- **Chaos Testing with Toxiproxy:** Simulates real-world network issues (500ms lag and 20% packet drops) to prove resilience.
+
+---
+
+## Tech Stack
+
+- **Backend:** Go (Standard library `net/http`, Gorilla WebSocket, `sync.RWMutex`)
+- **Frontend:** React, Vite, Lucide icons
+- **DevOps & Testing:** Docker, Docker Compose, Toxiproxy
 
 ---
 
 ## Architecture
 
 ```
-                      +-----------------------------+
-                      |   Client / Load Generator   |
-                      +--------------+--------------+
-                                     |
-                                     v
-                      +-----------------------------+
-                      |   Sentinel Gateway Proxy    |
-                      |          (:8080)            |
-                      |   [128 MB Memory Limit]     |
-                      +--------------+--------------+
-                                     |
-               +---------------------+---------------------+
-               | (Circuit CLOSED & Latency < 200ms)        | (Circuit OPEN or Timeout > 200ms)
-               v                                           v
-+-----------------------------+             +-----------------------------+
-|    Toxiproxy Upstream       |             |   Secondary Fallback API    |
-|          (:8475)            |             |           (:8082)           |
-+--------------+--------------+             +-----------------------------+
-               |
-               v
-+-----------------------------+
-|      Primary API Mock       |
-|          (:8081)            |
-+-----------------------------+
+                        [ Client / Traffic ]
+                                 │
+                                 ▼
+                     [ Sentinel Gateway :8080 ]
+                                 │
+                 ┌───────────────┴───────────────┐
+                 ▼                               ▼
+         (Fast & Healthy)                (Slow > 200ms / Down)
+                 │                               │
+                 ▼                               ▼
+       [ Primary API :8081 ]           [ Secondary API :8082 ]
+       (via Toxiproxy :8475)                 (Fallback)
 ```
 
 ---
 
-## Key Features
+## How to Run
 
-- **Custom Circuit Breaker:** Zero-dependency implementation supporting `CLOSED`, `OPEN`, and `HALF-OPEN` states with thread-safe atomic transitions via `sync.RWMutex`.
-- **Strict 200ms Context Deadlines:** Requests to upstream Primary APIs are cancelled immediately if processing exceeds 200ms, seamlessly failing over to redundant secondary services.
-- **Rewindable Request Bodies:** Request bodies for `POST`/`PUT`/`PATCH` are buffered in memory once, ensuring requests can be cleanly replayed to fallback targets on timeout.
-- **Memory Optimization (128 MB Ceiling):** Utilizes `sync.Pool` 32KB streaming buffers (`io.CopyBuffer`) and connection pooling, keeping steady-state heap usage under 15 MB.
-- **Live WebSocket Telemetry:** Streams system statistics, route distributions, latencies, and runtime memory metrics to connected dashboards at 10 Hz.
-- **High-Frequency Observability Dashboard:** Built with React and Vite, utilizing `requestAnimationFrame` render throttling to ingest real-time metrics without main-thread jank.
-- **Integrated Chaos Engineering:** Turnkey Toxiproxy integration simulating 500ms latency and 20% packet loss to validate automated failover under adverse network conditions.
-
----
-
-## Quickstart
-
-### Prerequisites
-- Docker & Docker Compose
-- Go 1.22+ (for local development)
-- Node.js 20+ (for frontend development)
-
-### Running with Docker Compose
-
-To start the entire cluster (Gateway, Mock Services, Toxiproxy, and Dashboard):
+The easiest way to start all services (Gateway, Primary API, Secondary API, Toxiproxy, and Dashboard) is with Docker Compose:
 
 ```bash
 docker compose up -d --build
 ```
 
-### Endpoints
-
-| Service | Port | Description |
-| :--- | :--- | :--- |
-| **Sentinel Gateway** | `http://localhost:8080` | Reverse proxy entrypoint |
-| **Observability Dashboard** | `http://localhost:3000` | Real-time monitoring UI |
-| **Primary Mock API** | `http://localhost:8081` | Upstream service (~15ms response) |
-| **Secondary Fallback API** | `http://localhost:8082` | Redundant fallback service |
-| **Toxiproxy API** | `http://localhost:8474` | Chaos engineering control plane |
-| **Toxiproxy Ingress** | `http://localhost:8475` | Ingress proxy to Primary API |
+Once running, you can access:
+- **Dashboard:** [http://localhost:3000](http://localhost:3000)
+- **Gateway Proxy:** [http://localhost:8080](http://localhost:8080)
+- **Primary Mock API:** [http://localhost:8081](http://localhost:8081)
+- **Secondary Mock API:** [http://localhost:8082](http://localhost:8082)
 
 ---
 
-## Chaos Engineering & Resilience Verification
+## Testing Chaos & Recovery
 
-You can simulate upstream failure either directly from the web dashboard or using the provided automation scripts.
+You can test the automatic failover right from the web dashboard:
 
-### 1. In the Dashboard
-- Navigate to `http://localhost:3000`.
-- Click **"Simulate Traffic (50 RPS)"** to establish baseline traffic through the Primary API.
-- Click **"Inject Chaos (500ms Latency)"** to trigger upstream degradation.
-- Observe the gateway cancel requests at 200ms, trip the circuit breaker to `OPEN`, and route 100% of traffic to the Secondary fallback.
-- Click **"Heal Primary"** to observe `HALF-OPEN` trial probes and automatic recovery back to `CLOSED`.
+1. Open `http://localhost:3000`.
+2. Click **"Simulate Traffic"** to send ~50 requests per second. You will see green traffic flowing to the Primary API.
+3. Click **"Inject Chaos"**. This uses Toxiproxy to add a 500ms delay to the Primary API.
+4. Sentinel's 200ms timeout kicks in, the circuit trips to **OPEN (Red)**, and traffic automatically diverts to the Secondary API. Notice that **every request still returns 200 OK**—zero dropped requests.
+5. Click **"Heal Primary"**. After a 5-second cooldown, Sentinel sends test probes in **HALF-OPEN (Yellow)** and automatically switches back to **CLOSED (Green)** once healthy.
 
-### 2. Using CLI Scripts
+You can also run the chaos scripts from the terminal:
 
 ```bash
-# Inject 500ms latency and 20% packet drop
+# Inject 500ms lag & 20% loss
 ./chaos/inject_chaos.sh     # Linux / macOS
 .\chaos\inject_chaos.ps1   # Windows PowerShell
 
-# Reset upstream back to healthy ~15ms latency
+# Restore normal speed
 ./chaos/reset_chaos.sh      # Linux / macOS
 .\chaos\reset_chaos.ps1    # Windows PowerShell
 ```
 
 ---
 
-## Testing
-
-Run unit tests across all backend packages:
+## Running Backend Tests
 
 ```bash
 cd backend
 go test -v ./...
 ```
 
-The test suite validates:
-- State transitions (`CLOSED` -> `OPEN` -> `HALF-OPEN` -> `CLOSED`).
-- Immediate re-trip to `OPEN` on failed trial request in `HALF-OPEN`.
-- Context deadline enforcement and seamless failover to secondary.
-- Request body rewind and replay on fallback.
-- Thread-safe telemetry snapshotting and RPS window calculation.
+The unit tests verify:
+- Circuit breaker transitions (`CLOSED` → `OPEN` → `HALF-OPEN` → `CLOSED`).
+- Immediate re-trip to `OPEN` if a test probe fails in `HALF-OPEN`.
+- 200ms context timeout handling and fallback execution.
+- Body rewinding for POST requests on fallback.
+- Thread-safe metrics and RPS tracking.
 
 ---
 
@@ -143,31 +116,22 @@ The test suite validates:
 .
 ├── backend/
 │   ├── cmd/
-│   │   ├── sentinel/          # Gateway entrypoint & HTTP multiplexer
-│   │   ├── primary-mock/      # Primary upstream service mock
-│   │   └── secondary-mock/    # Fallback upstream service mock
+│   │   ├── sentinel/          # Gateway entrypoint & routing
+│   │   ├── primary-mock/      # Primary API mock (~15ms)
+│   │   └── secondary-mock/    # Backup API mock (~10ms)
 │   ├── internal/
-│   │   ├── circuitbreaker/    # Custom 3-state Circuit Breaker
-│   │   ├── proxy/             # Reverse proxy router & connection pool
+│   │   ├── circuitbreaker/    # Custom circuit breaker state machine
+│   │   ├── proxy/             # Reverse proxy router & timeout logic
 │   │   └── telemetry/         # Metrics collector & WebSocket hub
 │   ├── Dockerfile
-│   ├── go.mod
-│   └── go.sum
-├── chaos/
-│   ├── inject_chaos.ps1       # PowerShell chaos trigger
-│   ├── inject_chaos.sh        # Bash chaos trigger
-│   ├── reset_chaos.ps1        # PowerShell chaos reset
-│   └── reset_chaos.sh         # Bash chaos reset
+│   └── go.mod
 ├── frontend/
-│   ├── public/                # Static assets & icons
-│   ├── src/
-│   │   ├── App.jsx            # Observability dashboard component
-│   │   ├── index.css          # Design tokens & styles
-│   │   └── main.jsx           # React root mounting
-│   ├── Dockerfile             # Multi-stage Nginx container
-│   ├── nginx.conf             # Reverse proxy configuration
-│   └── vite.config.js
-├── docker-compose.yml         # Container orchestration spec
+│   ├── src/                   # React dashboard
+│   ├── Dockerfile
+│   └── package.json
+├── chaos/                     # Chaos test scripts
+├── docs/                      # Demo video (demo.mp4)
+├── docker-compose.yml
 ├── .gitignore
 └── README.md
 ```
@@ -176,4 +140,4 @@ The test suite validates:
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT
