@@ -31,11 +31,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Local candidate materials & notes (not committed to repo)
-INTERVIEW_PREP.md
-*.pdf
-*.docx
-
 # Local runner scripts in root (keep chaos/*.ps1 tracked)
 /*.ps1
 
