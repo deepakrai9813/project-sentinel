@@ -32,4 +32,6 @@ Thumbs.db
 # Local notes & candidate materials (not pushed to remote)
 INTERVIEW_PREP.md
 *.pdf
+run_local.ps1
+stop_local.ps1
 
