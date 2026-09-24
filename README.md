@@ -1,4 +1,4 @@
-# Project Sentinel 🛡️
+# Project Sentinel
 
 A lightweight, fault-tolerant API gateway and reverse proxy with a custom Circuit Breaker and real-time dashboard, built in Go and React.
 
@@ -6,10 +6,10 @@ I built Project Sentinel to tackle a common problem in backend microservices: wh
 
 ---
 
-## 🎥 Video Demo
+## Video Demo
 I recorded a quick video walkthrough demonstrating the dashboard, injecting chaos with Toxiproxy, and showing how Sentinel automatically recovers:
 
-👉 **[Watch the Demo Video (docs/demo.mp4)](./docs/demo.mp4)**
+**[Watch the Demo Video (docs/demo.mp4)](./docs/demo.mp4)**
 
 ---
 
