@@ -17,21 +17,31 @@ vendor/
 *.test
 coverage/
 
-# Environment and local configs
+# Environment, temporary & local configs
 .env
 .env.local
+.env.*.local
 *.log
 
-# IDE & OS files
+# IDE, OS & editor files
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
 *.swp
+*.swo
 
-# Local notes & candidate materials (not pushed to remote)
+# Local candidate materials & notes (not committed to repo)
 INTERVIEW_PREP.md
 *.pdf
-run_local.ps1
-stop_local.ps1
+*.docx
 
+# Local runner scripts in root (keep chaos/*.ps1 tracked)
+/*.ps1
+
+# Raw screen recordings in root (keep docs/demo.mp4 tracked)
+/*.mp4
+/*.mov
+/*.webm
+/*.mkv
+!docs/demo.mp4
