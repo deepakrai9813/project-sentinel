@@ -10,6 +10,19 @@ A high-performance, fault-tolerant API gateway and reverse proxy built from scra
 
 ---
 
+## 🎥 Demo Video Walkthrough
+
+> **[▶️ Click here to watch the full Demonstration Walkthrough (docs/demo.mp4)](./docs/demo.mp4)**
+> 
+> A complete demonstration showing:
+> - **Live Operations:** Baseline traffic dispatched to Primary API (`:8081`) with ~15ms response times.
+> - **Chaos Engineering:** Injecting 500ms latency and 20% packet drops via Toxiproxy.
+> - **Resilient Circuit Breaking:** Automatic 200ms context timeout enforcement, tripping to `OPEN` after 5 consecutive failures.
+> - **Seamless Redundancy:** Instant failover to Secondary API (`:8082`) with zero dropped requests (100% 200 OK responses).
+> - **Autonomous Self-Healing:** 5-second cooldown evaluation, controlled trial probe in `HALF-OPEN`, and automatic recovery back to `CLOSED`.
+
+---
+
 ## Architecture
 
 ```
